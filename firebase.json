@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "predeploy": "npm run build",
     "public": "build",
     "site": "theory-of-computation-uabc",
     "ignore": [
@@ -30,8 +29,16 @@
     ],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/app",
+        "destination": "/app.html"
+      },
+      {
+        "source": "/app/**",
+        "destination": "/app.html"
+      },
+      {
+        "source": "!/@(app)/*",
+        "destination": "/landing.html"
       }
     ]
   },
