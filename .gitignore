@@ -20,7 +20,7 @@
 .env.production.local
 
 #env
-firebaseConfig.js
+firebaseConfig.tsx
 
 
 npm-debug.log*
