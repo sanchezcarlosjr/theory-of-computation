@@ -1,22 +1,25 @@
-import { Refine } from "@pankod/refine-core";
-import { notificationProvider, Layout, LoginPage } from "@pankod/refine-antd";
-import routerProvider from "@pankod/refine-react-router-v6";
-import "@pankod/refine-antd/dist/styles.min.css";
-import { dataProvider } from "@pankod/refine-supabase";
-
-import authProvider from "./authProvider";
-import { supabaseClient } from "utility";
+import React from 'react';
+import logo from './logo.svg';
+import './App.css';
 
 function App() {
   return (
-    <Refine
-      routerProvider={routerProvider}
-      notificationProvider={notificationProvider}
-      Layout={Layout}
-      dataProvider={dataProvider(supabaseClient)}
-      authProvider={authProvider}
-      LoginPage={LoginPage}
-    />
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
+        <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
+    </div>
   );
 }
 

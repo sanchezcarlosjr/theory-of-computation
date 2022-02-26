@@ -4,6 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "predeploy": "npm run build",
     "public": "build",
     "site": "theory-of-computation-uabc",
     "ignore": [
