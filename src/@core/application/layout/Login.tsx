@@ -7,7 +7,7 @@ import {Helmet} from "react-helmet";
 
 const uiConfig = {
     signInFlow: 'redirect',
-    signInSuccessUrl: '/#/grammars',
+    signInSuccessUrl: '/app/#/grammars',
     signInOptions: [
         GoogleAuthProvider.PROVIDER_ID,
         FacebookAuthProvider.PROVIDER_ID,
@@ -19,7 +19,7 @@ const SignInScreen = () => <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth=
 
 const CustomLoginForm = (props: any) => (
     <div>
-        <LoginForm  redirect="/#/grammars" {...props} />
+        <LoginForm  redirect="/app/#/grammars" {...props} />
         <SignInScreen/>
     </div>
 );
