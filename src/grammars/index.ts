@@ -1,10 +1,11 @@
 import {GrammarList} from "./grammarList";
-import {GrammarCreate} from "./grammarCreate";
+import {GrammarCreate, GrammarEdit} from "./grammarUpsert";
 
 const module = {
     options: {label: 'Grammar'},
     list: GrammarList,
-    create: GrammarCreate
+    create: GrammarCreate,
+    edit: GrammarEdit
 };
 
 export default module;
