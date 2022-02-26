@@ -2,7 +2,7 @@ import * as React from "react";
 import {List, TextInput, Datagrid, TextField } from 'react-admin';
 
 const grammarFilters = [
-    <TextInput label="Search" source="q" alwaysOn />,
+    <TextInput label="Search" source="name" alwaysOn />,
 ];
 
 export const GrammarList = (props: any) => (
