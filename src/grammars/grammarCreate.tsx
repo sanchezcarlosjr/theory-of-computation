@@ -8,7 +8,6 @@ import {
 export const GrammarCreate = (props: any) => (
     <Create {...props}>
         <SimpleForm>
-            <TextInput source="id"/>
             <TextInput source="name"/>
         </SimpleForm>
     </Create>

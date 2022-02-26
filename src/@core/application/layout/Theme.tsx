@@ -1,9 +1,6 @@
 import { createTheme } from '@material-ui/core/styles';
 
 export const theme = createTheme({
-    typography: {
-        fontFamily: '"IBM Plex Sans Regular", Roboto, "Helvetica Neue", Arial, sans-serif',
-    },
     palette: {
         primary: {
             main: '#00723F',
