@@ -7,4 +7,5 @@ test('renders learn react link', () => {
   expect(grammar.terminal_symbols).toBe("a");
   expect(grammar.nonterminal_symbols).toBe("\\Sigma,S");
   expect(grammar.production_rules).toBe("\\Sigma\\to S,S\\to\\lambda,S\\to a");
+  expect(grammar.start_symbol).toBe("\\Sigma");
 });

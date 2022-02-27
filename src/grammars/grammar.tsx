@@ -6,4 +6,5 @@ export interface Grammar extends Record {
     terminal_symbols: string;
     nonterminal_symbols: string;
     production_rules: string;
+    start_symbol: string;
 }
