@@ -1,12 +1,12 @@
-import {SimpleForm, TextInput} from "react-admin";
+import {required, SimpleForm} from "react-admin";
 import * as React from "react";
+import {MathInput} from "../@core/application/MathInput";
 
+// https://cortexjs.io/mathlive/demo/
+const initialValue =
+    "\\begin{equation*} G=\\left\\lbrace terminal:\\left\\lbrace a\\right\\rbrace,nonterminal:\\left\\lbrace\\Sigma,S\\right\\rbrace,start\\_symbol:\\Sigma,production\\_rules:\\left\\lbrace\\Sigma\\to S,S\\to\\lambda,S\\to a\\rbrace\\right\\rbrace\\right \\end{equation*}";
 export const GrammarForm = (props: any) => (
     <SimpleForm warnWhenUnsavedChanges {...props}>
-        <TextInput source="name" label="Name"/>
-        <TextInput source="terminal_symbols" label="Terminal symbols" multiline/>
-        <TextInput source="nonterminal_symbols" label="Nonterminal symbols" multiline/>
-        <TextInput source="start_symbol" label="Start symbol" multiline/>
-        <TextInput source="production_rules" label="Production rules" multiline/>
+            <MathInput source="grammar" initialValue={initialValue} label="Grammar" validate={required("A grammar is required")} />
     </SimpleForm>
 )
