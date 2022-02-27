@@ -10,6 +10,6 @@ export const GrammarCreate = (props: any) => (
 
 export const GrammarEdit = (props: any) => (
     <Edit {...props}>
-        <GrammarForm />
+        <GrammarForm  redirect={false} />
     </Edit>
 );

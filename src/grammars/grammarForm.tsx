@@ -2,7 +2,7 @@ import {SimpleForm, TextInput} from "react-admin";
 import * as React from "react";
 
 export const GrammarForm = (props: any) => (
-    <SimpleForm {...props}>
+    <SimpleForm warnWhenUnsavedChanges {...props}>
         <TextInput source="name" label="Name"/>
         <TextInput source="terminal_symbols" label="Terminal symbols" multiline/>
         <TextInput source="nonterminal_symbols" label="Nonterminal symbols" multiline/>
