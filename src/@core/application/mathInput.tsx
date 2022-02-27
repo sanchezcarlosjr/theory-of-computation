@@ -13,6 +13,7 @@ export const MathInput = (props: any) => {
             name={name}
             label={props.label}
             onChange={onChange}
+            virtual-keyboard-mode="manual"
             error={!!(touched && error)}
             helperText={touched && error}
             required={isRequired}

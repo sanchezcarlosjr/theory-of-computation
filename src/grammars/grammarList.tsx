@@ -1,5 +1,6 @@
 import * as React from "react";
-import {List, TextInput, Datagrid, TextField } from 'react-admin';
+import {Datagrid, List, TextInput} from 'react-admin';
+import {MathField} from "../@core/application/mathField";
 
 const grammarFilters = [
     <TextInput label="Search" source="name" alwaysOn />,
@@ -8,11 +9,11 @@ const grammarFilters = [
 export const GrammarList = (props: any) => (
     <List  filters={grammarFilters}  {...props}>
         <Datagrid rowClick="edit">
-            <TextField source="name"/>
-            <TextField source="terminal_symbols"/>
-            <TextField source="nonterminal_symbols"/>
-            <TextField source="start_symbol"/>
-            <TextField source="production_rules"/>
+            <MathField source="name"/>
+            <MathField source="terminal_symbols"/>
+            <MathField source="nonterminal_symbols"/>
+            <MathField source="start_symbol"/>
+            <MathField source="production_rules"/>
         </Datagrid>
     </List>
 );

@@ -23,6 +23,9 @@ export function MathFieldComponent(props: any) {
             // @ts-ignore
             ref.current.value = value;
         }
+        if (onChange === undefined) {
+            return;
+        }
         // @ts-ignore
         current.addEventListener('input', invokeCallback);
         return () => {
@@ -32,5 +35,5 @@ export function MathFieldComponent(props: any) {
     });
 
     // @ts-ignore
-    return <math-field ref={ref} virtual-keyboard-mode="manual" {...rest}></math-field>;
+    return <math-field ref={ref} {...rest}/>;
 }
