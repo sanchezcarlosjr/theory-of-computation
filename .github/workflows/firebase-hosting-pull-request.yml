@@ -15,3 +15,12 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_ARSUS_PRODUCTION }}'
           projectId: arsus-production
+        env:
+          REACT_APP_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          REACT_APP_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          REACT_APP_DATABASE_URL: ${{ secrets.FIREBASE_DATABASE_URL }}
+          REACT_APP_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          REACT_APP_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          REACT_APP_MESSAGING_SEND_ID: ${{ secrets.FIREBASE_MESSAGING_SEND_ID }}
+          REACT_APP_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          REACT_APP_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
