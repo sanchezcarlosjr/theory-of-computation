@@ -7,7 +7,7 @@ export function transformGrammarUpsert(record: {id: string, grammar: string}|Gra
     const nameMatcher = record.grammar.match(/(?<name>[\w\d,\\_-]+)=(.*)/i);
     const terminalSymbolMatcher = record.grammar.match(/terminal:\\left\\lbrace(?<terminal_symbols>[\w \d,\\_-]+)\\right\\rbrace/i);
     const nonterminalSymbolMatcher = record.grammar.match(/nonterminal:\\left\\lbrace(?<nonterminal_symbols>[\w \d,\\_-]+)\\right\\rbrace/i);
-    const productionRuleMatcher = record.grammar.match(/production\\_rules:\\left\\lbrace(?<production_rules>[\w \d,\\_-]+)((\\rbrace\\right)|(\\right\\rbrace)){2,}/);
+    const productionRuleMatcher = record.grammar.match(/production\\_rules:\\left\\lbrace(?<production_rules>[\w |\d,\\_-]+)((\\rbrace\\right)|(\\right\\rbrace)){2,}/);
     const startSymbolMatcher = record.grammar.match(/start\\_symbol:(?<start_symbol>[\w\d\\_-]+)/);
     return {
         ...record,
