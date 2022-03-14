@@ -18,8 +18,6 @@ export function MathFieldComponent(props: any) {
 
     return <MathView
         ref={ref}
-        onContentDidChange={(e) => onContentDidChange ? onContentDidChange(e.getValue()): undefined}
-        virtualKeyboardMode="manual"
         {...rest}
     />;
 }

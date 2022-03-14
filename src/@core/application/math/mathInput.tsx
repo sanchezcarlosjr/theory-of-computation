@@ -7,7 +7,7 @@ export const MathInput = (props: any) => {
     } = useInput(props);
     return (
         <MathFieldComponent
-            onContentDidChange={onChange}
+            onContentDidChange={(e: { getValue: () => any; }) =>onChange(e.getValue()) }
             virtualKeyboardMode="manual"
             {...rest}
         />
