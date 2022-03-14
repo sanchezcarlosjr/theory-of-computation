@@ -1,22 +1,14 @@
-import {MathFieldComponent} from "./mathFieldComponent";
 import {useInput} from "react-admin";
+import {MathFieldComponent} from "./mathFieldComponent";
 
 export const MathInput = (props: any) => {
     const {
-        input: {name, onChange, ...rest},
-        meta: {touched, error},
-        isRequired
+        input: {name, onChange, ...rest}
     } = useInput(props);
-
     return (
         <MathFieldComponent
-            name={name}
-            label={props.label}
-            onChange={onChange}
-            virtual-keyboard-mode="manual"
-            error={!!(touched && error)}
-            helperText={touched && error}
-            required={isRequired}
+            onContentDidChange={onChange}
+            virtualKeyboardMode="manual"
             {...rest}
         />
     );

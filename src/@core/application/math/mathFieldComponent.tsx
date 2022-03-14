@@ -1,17 +1,9 @@
 import React, {useEffect, useRef} from "react";
-import "mathlive/dist/mathlive-fonts.css";
-import {MathfieldElement} from "mathlive";
+import MathView, {MathViewRef} from "react-math-view";
 
 export function MathFieldComponent(props: any) {
-    new MathfieldElement();
-    const ref = useRef();
-    const {children, value, onChange, ...rest} = props;
-
-    function invokeCallback(event: any) {
-        if (onChange) {
-            onChange(event, ref.current);
-        }
-    }
+    const ref = useRef<MathViewRef>(null);
+    const {children, value, onContentDidChange, ...rest} = props;
 
     useEffect(() => {
         const {current} = ref;
@@ -19,21 +11,15 @@ export function MathFieldComponent(props: any) {
             return;
         }
         // @ts-ignore
-        if (ref && ref.current && ref.current.value !== value && value) {
-            // @ts-ignore
-            ref.current.value = value;
-        }
-        if (onChange === undefined) {
-            return;
-        }
-        // @ts-ignore
-        current.addEventListener('input', invokeCallback);
-        return () => {
-            // @ts-ignore
-            current.removeEventListener('input', invokeCallback);
+        if (current && current.value !== value && value) {
+            current.value = value;
         }
     });
 
-    // @ts-ignore
-    return <math-field ref={ref} {...rest}/>;
+    return <MathView
+        ref={ref}
+        onContentDidChange={(e) => onContentDidChange ? onContentDidChange(e.getValue()): undefined}
+        virtualKeyboardMode="manual"
+        {...rest}
+    />;
 }
