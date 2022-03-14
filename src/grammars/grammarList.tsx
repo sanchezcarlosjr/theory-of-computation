@@ -1,6 +1,6 @@
 import * as React from "react";
 import {Datagrid, List, TextInput} from 'react-admin';
-import {MathField} from "../@core/application/mathField";
+import {MathField} from "../@core/application/math";
 
 const grammarFilters = [
     <TextInput label="Search" source="name" alwaysOn />,

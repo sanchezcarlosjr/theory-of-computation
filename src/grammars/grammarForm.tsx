@@ -1,6 +1,6 @@
 import {required, SimpleForm} from "react-admin";
 import * as React from "react";
-import {MathInput} from "../@core/application/mathInput";
+import {MathInput} from "../@core/application/math";
 
 // https://cortexjs.io/mathlive/demo/
 const initialValue =
