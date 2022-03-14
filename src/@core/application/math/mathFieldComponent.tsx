@@ -3,7 +3,7 @@ import MathView, {MathViewRef} from "react-math-view";
 
 export function MathFieldComponent(props: any) {
     const ref = useRef<MathViewRef>(null);
-    const {children, value, onContentDidChange, ...rest} = props;
+    const {children, value, ...rest} = props;
 
     useEffect(() => {
         const {current} = ref;
