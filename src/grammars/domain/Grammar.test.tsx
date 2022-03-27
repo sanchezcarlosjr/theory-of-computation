@@ -99,6 +99,10 @@ test("Grammar should parse GrammarRecordMock1", () => {
     expect(grammar.terminal_symbols.has("+")).toBeTruthy();
     expect(grammar.terminal_symbols.has("-")).toBeTruthy();
     expect(grammar.terminal_symbols.has(".")).toBeTruthy();
+    expect(grammar.production_rules[0]).toEqual(new ProductionRule({from: "\\Sigma", to: " S"}));
+    expect(grammar.production_rules[1]).toEqual(new ProductionRule({from: "\\Sigma", to: "B"}));
+    expect(grammar.production_rules[2]).toEqual(new ProductionRule({from: "S", to: "\\lambda"}));
+    expect(grammar.production_rules[3]).toEqual(new ProductionRule({from: "B", to: " a+-."}));
 });
 
 test('Production rule ensure its symbols are either nonterminal symbols or terminal symbols', () => {

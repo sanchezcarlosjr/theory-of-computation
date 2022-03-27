@@ -3,6 +3,7 @@ import {GrammarRecord} from "../grammarRecord";
 
 export class NonTerminalSymbols {
     private symbols = new Set();
+
     constructor(start_symbol: NonTerminalSymbol, ...nonterminal_symbols: NonTerminalSymbol[]) {
         this.add(start_symbol);
         nonterminal_symbols.forEach((symbol) => {
@@ -74,7 +75,7 @@ export class Grammar {
     get production_rules(): ProductionRule[] {
         return this._production_rules;
     }
-    
+
     get start_symbol(): NonTerminalSymbol {
         return this._start_symbol;
     }
@@ -85,7 +86,18 @@ export class Grammar {
         const terminal_symbols = new Set<TerminalSymbol>();
         record.nonterminal_symbols.split(",").forEach((symbol) => non_terminals_symbols.add(symbol));
         record.terminal_symbols.split(",").forEach((symbol) => terminal_symbols.add(symbol));
-        return new Grammar(record.name, terminal_symbols, non_terminals_symbols, [], start_symbol);
+        const production_rules = record
+            .production_rules
+            .split(",")
+            .map((rule) =>
+                rule.split("\\to")
+                    .reduce((acc: any, actual) => ([...acc, ...actual.split("|")]), [] )
+                    .reduce((acc: any, actual: any, index: any, array: any[]) =>  (
+                        [...acc, new ProductionRule({from: array[0], to: actual})]), []
+                    )
+                    .splice(1)
+            ).flat();
+        return new Grammar(record.name, terminal_symbols, non_terminals_symbols, production_rules, start_symbol);
     }
 
     buildTransducerAutomaton(): TransducerAutomaton {
