@@ -1,6 +1,6 @@
 import {Record} from "react-admin";
 
-export interface Grammar extends Record {
+export interface GrammarRecord extends Record {
     name: string;
     grammar: string;
     terminal_symbols: string;
