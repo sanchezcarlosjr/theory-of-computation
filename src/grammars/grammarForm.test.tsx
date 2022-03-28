@@ -2,6 +2,7 @@ import {transformGrammarUpsert} from "./grammarUpsert";
 import {GrammarRecord} from "./grammarRecord";
 
 export const grammarRecordMock1 = {id: "1", grammar: "\\begin{equation*} G2=\\left\\lbrace terminal:\\left\\lbrace a,+,-,.\\right\\rbrace,nonterminal:\\left\\lbrace\\Sigma,S,B\\right\\rbrace,start\\_symbol:\\Sigma,production\\_rules:\\left\\lbrace\\Sigma\\to S|B,S\\to\\lambda,B\\to a+-.\\rbrace\\right\\rbrace\\right. \\end{equation*}"};
+export const grammarRecordMock2 = {id: "2", grammar: "\\begin{equation*} G=\\left\\lbrace terminal:\\left\\lbrace a\\right\\rbrace,nonterminal:\\left\\lbrace\\Sigma,S\\right\\rbrace,start\\_symbol:\\Sigma,production\\_rules:\\left\\lbrace\\Sigma\\to S,S\\to\\lambda,S\\to a\\rbrace\\right\\rbrace\\right \\end{equation*}"}
 
 test('it transforms form to grammar record', () => {
   const grammar: GrammarRecord = transformGrammarUpsert(grammarRecordMock1);
