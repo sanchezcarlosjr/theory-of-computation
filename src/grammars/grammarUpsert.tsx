@@ -1,9 +1,9 @@
 import * as React from "react";
 import {Create, Edit} from 'react-admin';
 import {GrammarForm} from "./grammarForm";
-import {Grammar} from "./grammar";
+import {GrammarRecord} from "./grammarRecord";
 
-export function transformGrammarUpsert(record: {id: string, grammar: string}|Grammar):  Grammar {
+export function transformGrammarUpsert(record: {id: string, grammar: string}|GrammarRecord):  GrammarRecord {
     const nameMatcher = record.grammar.match(/(?<name>[\w\d,\\_-]+)=(.*)/i);
     const terminalSymbolMatcher = record.grammar.match(/terminal:\\left\\lbrace(?<terminal_symbols>[\w \d,*+.\-=!@#$%^&()~`><?\\{}[\]_-]+)\\right\\rbrace/i);
     const nonterminalSymbolMatcher = record.grammar.match(/nonterminal:\\left\\lbrace(?<nonterminal_symbols>[\w \d,\\_-]+)\\right\\rbrace/i);
