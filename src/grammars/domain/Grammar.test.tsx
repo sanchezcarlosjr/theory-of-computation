@@ -1,5 +1,5 @@
 import {Grammar, NonTerminalSymbol, NonTerminalSymbols, TerminalSymbol} from "./Grammar";
-import {ProductionRule} from "./ProductionRule";
+import {findStringFromSet, ProductionRule} from "./ProductionRule";
 import {GrammarRecord} from "../grammarRecord";
 import {transformGrammarUpsert} from "../grammarUpsert";
 import {grammarRecordMock1, grammarRecordMock2} from "../grammarForm.test";
@@ -29,10 +29,10 @@ test('Grammar should derive a simply string', () => {
     const grammar = new Grammar("G", new Set(terminals), nonterminals, production_rules, start_symbol);
     const automaton = grammar.buildTransducerAutomaton();
     automaton.applyRule(0);
-    expect(automaton.deriveString()).toBe("a");
+    expect(automaton.deriveString()).toBe("a ");
     automaton.reset();
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("b");
+    expect(automaton.deriveString()).toBe("b ");
 });
 
 test('Grammar should derive a string with recursive rules from StartSymbol (Regular)', () => {
@@ -47,18 +47,18 @@ test('Grammar should derive a string with recursive rules from StartSymbol (Regu
     const automaton = grammar.buildTransducerAutomaton();
     automaton.applyRule(0);
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("ba");
+    expect(automaton.deriveString()).toBe("b a ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(0);
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("baa");
+    expect(automaton.deriveString()).toBe("b a a ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(0);
     automaton.applyRule(0);
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("baaa");
+    expect(automaton.deriveString()).toBe("b a a a ");
 });
 
 test('Grammar should derive a string with recursive rules from StartSymbol (Free Grammar)', () => {
@@ -73,16 +73,16 @@ test('Grammar should derive a string with recursive rules from StartSymbol (Free
     const grammar = new Grammar("G", new Set(terminals), nonterminals, production_rules, start_symbol);
     const automaton = grammar.buildTransducerAutomaton();
     automaton.applyRule(2);
-    expect(automaton.deriveString()).toBe("");
+    expect(automaton.deriveString()).toBe(" ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(2);
-    expect(automaton.deriveString()).toBe("a");
+    expect(automaton.deriveString()).toBe(" a ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(1);
     automaton.applyRule(2);
-    expect(automaton.deriveString()).toBe("ba");
+    expect(automaton.deriveString()).toBe("b  a ");
 });
 
 
@@ -99,14 +99,17 @@ test("Grammar should parse GrammarRecordMock1", () => {
     expect(grammar.terminal_symbols.has("+")).toBeTruthy();
     expect(grammar.terminal_symbols.has("-")).toBeTruthy();
     expect(grammar.terminal_symbols.has(".")).toBeTruthy();
-    const rule0 = new ProductionRule({from: "\\Sigma", to: "S"});
-    rule0.setSymbols(grammar.terminal_symbols, grammar.nonterminal_symbols);
-    expect(grammar.production_rules[0]).toEqual(rule0);
-    const rule1 = new ProductionRule({from: "\\Sigma", to: "B"});
-    rule1.setSymbols(grammar.terminal_symbols, grammar.nonterminal_symbols);
-    expect(grammar.production_rules[1]).toEqual(rule1);
-    expect(grammar.production_rules[2]).toEqual(new ProductionRule({from: "S", to: "\\lambda"}));
-    expect(grammar.production_rules[3]).toEqual(new ProductionRule({from: "B", to: "a+-."}));
+    const rules = [
+        new ProductionRule({from: "\\Sigma", to: "S"}),
+        new ProductionRule({from: "\\Sigma", to: "B"}),
+        new ProductionRule({from: "S", to: "\\lambda"}),
+        new ProductionRule({from: "B", to: "a+-."})
+    ];
+    rules.forEach((rule) => rule.setSymbols(grammar.terminal_symbols, grammar.nonterminal_symbols));
+    expect(grammar.production_rules[0]).toEqual(rules[0]);
+    expect(grammar.production_rules[1]).toEqual(rules[1]);
+    expect(grammar.production_rules[2]).toEqual(rules[2]);
+    expect(grammar.production_rules[3]).toEqual(rules[3]);
 });
 
 test("Grammar should execute steps from parser", () => {
@@ -115,13 +118,13 @@ test("Grammar should execute steps from parser", () => {
     const automaton = grammar.buildTransducerAutomaton();
     expect(automaton.deriveString()).toBe("\\Sigma");
     automaton.applyRule(0);
-    expect(automaton.deriveString()).toBe("S");
+    expect(automaton.deriveString()).toBe("S ");
     automaton.applyRule(2);
-    expect(automaton.deriveString()).toBe("\\lambda");
+    expect(automaton.deriveString()).toBe("\\lambda  ");
     automaton.reset();
     automaton.applyRule(1);
     automaton.applyRule(3);
-    expect(automaton.deriveString()).toBe("a+-.");
+    expect(automaton.deriveString()).toBe("a+-.  ");
 });
 
 test("Grammar should execute steps from GrammarMock2 parser", () => {
@@ -130,20 +133,20 @@ test("Grammar should execute steps from GrammarMock2 parser", () => {
     const automaton = grammar.buildTransducerAutomaton();
     expect(automaton.deriveString()).toBe("\\Sigma");
     automaton.applyRule(0);
-    expect(automaton.deriveString()).toBe("S");
+    expect(automaton.deriveString()).toBe("S ");
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("\\lambda");
+    expect(automaton.deriveString()).toBe("\\lambda  ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("\\lambda");
+    expect(automaton.deriveString()).toBe("\\lambda  ");
     automaton.reset();
     automaton.applyRule(0);
     automaton.applyRule(2);
-    expect(automaton.deriveString()).toBe("a");
+    expect(automaton.deriveString()).toBe("a  ");
     automaton.reset();
     automaton.applyRule(1);
-    expect(automaton.deriveString()).toBe("\\Sigma");
+    expect(automaton.deriveString()).toBe("\\Sigma ");
 });
 
 test('Production rule ensure its symbols are either nonterminal symbols or terminal symbols', () => {
@@ -166,4 +169,37 @@ test("Production rule make accepted set", () => {
     automaton.applyRule(0);
     expect(automaton.actual_state().acceptable_next_rule(1)).toBeTruthy();
     expect(automaton.actual_state().acceptable_next_rule(2)).toBeFalsy();
+});
+
+test("Production rule know what is its type", () => {
+    const terminals = new Set<TerminalSymbol>(["a","b", "c", "d", "e"]);
+    const nonterminals = new NonTerminalSymbols("\\Sigma", "S", "A");
+    const rules = [
+        new ProductionRule({from: "\\Sigma", to: "S"}),
+        new ProductionRule({from: "\\Sigma", to: "Sa"}),
+        new ProductionRule({from: "\\Sigma", to: "aS"}),
+        new ProductionRule({from: "\\Sigma", to: "SaS"}),
+        new ProductionRule({from: "\\Sigma", to: "\\lambda"}),
+        new ProductionRule({from: "S", to: "A"}),
+        new ProductionRule({from: "S", to: "\\lambda"}),
+        new ProductionRule({from: "SA", to: "ab"}),
+        new ProductionRule({from: "SA", to: "a"}),
+    ];
+    rules.forEach((rule) => rule.setSymbols(terminals, nonterminals));
+    expect(rules[0].type).toBe(3.1);
+    expect(rules[1].type).toBe(3.1);
+    expect(rules[2].type).toBe(3.1);
+    expect(rules[3].type).toBe(2);
+    expect(rules[4].type).toBe(3.1);
+    expect(rules[5].type).toBe(3.1);
+    expect(rules[6].type).toBe(3.1);
+    expect(rules[7].type).toBe(1);
+    expect(rules[8].type).toBe(0);
+});
+
+test('findStringFromSet should find all strings', () => {
+    let array = findStringFromSet("Sa\\Sigmaa\\Sigma", new Set(["S", "a", "\\Sigma"]));
+    expect(array).toEqual(["S", "a", "\\Sigma", "a", "\\Sigma" ]);
+    array = findStringFromSet("SX\\SigmaX\\lambda\\Sigma", new Set(["S", "X", "\\Sigma", "\\lambda", "a"]));
+    expect(array).toEqual(["S", "X", "\\Sigma", "X", "\\lambda", "\\Sigma" ]);
 });

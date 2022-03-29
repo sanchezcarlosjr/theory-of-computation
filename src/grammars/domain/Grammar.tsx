@@ -32,8 +32,11 @@ export class NonTerminalSymbols {
         return this;
     }
 
-    toArray() {
-        return Array.from(this.symbols);
+    toArray(): string[] {
+        const x = Array.from(this.symbols);
+        const y = new Set<string>();
+        x.forEach((element: any) => y.add(element.toString()));
+        return Array.from(y);
     }
 }
 
@@ -43,10 +46,11 @@ export class TerminalSymbol extends String {
 export class NonTerminalSymbol extends String {
 }
 
-class StartRule  extends ProductionRule {
+class StartRule extends ProductionRule {
     constructor() {
         super({from: "", to: ""});
     }
+
     derive(derivation_string: string) {
         return derivation_string;
     }
@@ -71,23 +75,30 @@ export function useTransducerAutomaton(production_rules: ProductionRule[], start
     production_rules.forEach((rule) => rule.setAcceptableProductionRules(production_rules));
 
     const initialState = {
-        history: [{from: `Start \\to ${start_symbol}`, to: start_symbol.toString(), byRule: -1}]
+        history: [{from: `Start \\to ${start_symbol}`, to: start_symbol.toString(), byRule: -1}],
+        language: new Set<string>()
     };
-
     const [state, setState] = useState(initialState);
 
     const applyRule = (rule: any) => {
-        const application = state.history[state.history.length-1].to;
+        const application = state.history[state.history.length - 1].to;
         const result = production_rules[rule].derive(application);
-        if (state.history[state.history.length-1].byRule === -1) {
-            setState({history: []});
+        if (state.history[state.history.length - 1].byRule === -1) {
+            setState({history: [], language: new Set(state.language)});
         }
         setState({
-            history: [...state.history, {from: application, to: result, byRule: rule}]
+            history: [...state.history, {from: application, to: result, byRule: rule}],
+            language: new Set(state.language)
         });
+        if (production_rules[rule].is_a_terminal_rule) {
+            setState({
+                history: [{from: `Start \\to ${start_symbol}`, to: start_symbol.toString(), byRule: -1}],
+                language: new Set(state.language.add(result))
+            });
+        }
     }
 
-    const reset = () => setState(initialState)
+    const reset = () => setState(initialState);
 
     return {
         state,
@@ -97,7 +108,7 @@ export function useTransducerAutomaton(production_rules: ProductionRule[], start
 }
 
 export class TransducerAutomaton {
-    history: {from: string, to: string, byRule: number}[] = [];
+    history: { from: string, to: string, byRule: number }[] = [];
     private start_state = new StartRule();
 
     constructor(private production_rules: ProductionRule[], private start_symbol: NonTerminalSymbol) {
@@ -125,6 +136,14 @@ export class TransducerAutomaton {
         return this.production_rules[this.actual_rule()];
     }
 
+    deriveString() {
+        return this.history[this.history.length - 1].to;
+    }
+
+    reset() {
+        this.history = [{from: "", to: this.start_symbol.toString(), byRule: -1}];
+    }
+
     private actual_rule() {
         return this.history[this.history.length - 1].byRule;
     }
@@ -132,17 +151,63 @@ export class TransducerAutomaton {
     private is_start_state() {
         return this.actual_rule() === -1;
     }
+}
 
-    deriveString() {
-        return this.history[this.history.length-1].to;
+class GrammarTypeAutomaton {
+    actualState = 3.1;
+    states: {[key: number]: any} = {
+        0: {
+            0: 0,
+            1: 0,
+            2: 0,
+            3.1: 0,
+            3.2: 0,
+            "response": "0"
+        },
+        1: {
+            0: 0,
+            1: 1,
+            2: 1,
+            3.1: 1,
+            3.2: 1,
+            "response": "1"
+        },
+        2: {
+            0: 0,
+            1: 1,
+            2: 2,
+            3.1: 2,
+            3.2: 2,
+            "response": "2"
+        },
+        3.1: {
+            0: 0,
+            1: 1,
+            2: 2,
+            3.1: 3.1,
+            3.2: 2,
+            "response": "3"
+        },
+        3.2: {
+            0: 0,
+            1: 1,
+            2: 2,
+            3.1: 2,
+            3.2: 3.1,
+            "response": "Regular"
+        }
+    };
+    transit(type_rule: number) {
+        this.actualState = this.states[this.actualState][type_rule];
     }
-
-    reset() {
-        this.history = [{from: "", to: this.start_symbol.toString(), byRule: -1}];
+    get type(): number {
+        return this.states[this.actualState]["response"];
     }
 }
 
 export class Grammar {
+    private _type = 3.1;
+
     constructor(
         private _name: string,
         private _terminal_symbols: Set<TerminalSymbol>,
@@ -154,6 +219,12 @@ export class Grammar {
         this._production_rules.forEach((rule) =>
             rule.setSymbols(this.terminal_symbols, this.nonterminal_symbols)
         );
+        this.determineType();
+    }
+
+
+    get type(): number {
+        return this._type;
     }
 
     get name(): string {
@@ -204,5 +275,11 @@ export class Grammar {
         if (!this._nonterminal_symbols.has(this._start_symbol)) {
             throw new Error("Start symbol is not a non terminal symbol.");
         }
+    }
+
+    private determineType() {
+        const automaton = new GrammarTypeAutomaton();
+        this.production_rules.forEach((rule) => automaton.transit(rule.type));
+        this._type = automaton.type;
     }
 }

@@ -1,6 +1,5 @@
 import {Button, required, SimpleForm} from "react-admin";
 import * as React from "react";
-import {useState} from "react";
 import {MathInput} from "../@core/application/math";
 import {Grammar, useTransducerAutomaton} from "./domain/Grammar";
 import {transformGrammarUpsert} from "./grammarUpsert";
@@ -41,23 +40,15 @@ const GrammarDerivationFromUserInput = () => {
     const {values} = useFormState();
     const grammar = Grammar.parse(transformGrammarUpsert({id: values["id"] ?? "", grammar: values["grammar"]}));
     const {state, applyRule, reset} = useTransducerAutomaton(grammar.production_rules, grammar.start_symbol);
-    const [language, setLanguage] = useState(new Set() as Set<string>);
-
-    const addStringToActualLanguage = () => {
-        reset();
-        if (state.history[state.history.length - 1].byRule !== -1) {
-            setLanguage(new Set(language.add(state.history[state.history.length - 1].to)));
-        }
-    }
 
     const resetAll = () => {
         reset();
-        setLanguage(new Set());
     }
 
     return (
         <Grid container spacing={2}>
             <Grid item xs={3} md={3}>
+                <p>Type {grammar.type}</p>
                 <ProductionRulesList production_rules={grammar.production_rules} onClick={applyRule}/>
             </Grid>
             <Grid item>
@@ -88,11 +79,10 @@ const GrammarDerivationFromUserInput = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                <Button label="Added to L(g)" onClick={addStringToActualLanguage}/>
                 <Button label="Reset" onClick={resetAll}/>
             </Grid>
             <Grid item>
-                <MathFieldComponent readOnly value={`L(G)=\\{${Array.from(language).join(",")}\\}`}/>
+                <MathFieldComponent readOnly value={`L(G)=\\{${Array.from(state.language).join(",")}\\}`}/>
             </Grid>
         </Grid>
     );
