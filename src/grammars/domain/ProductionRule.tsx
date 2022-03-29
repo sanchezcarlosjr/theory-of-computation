@@ -99,7 +99,7 @@ export class ProductionRule {
             return;
         }
         const all_terminals = this.to.filter((toSymbol) => this.nonterminals.has(toSymbol));
-        if(all_terminals.length === 1) {
+        if(all_terminals.length <= 1) {
             this._type = 3.1;
             return;
         }
