@@ -184,6 +184,7 @@ test("Production rule know what is its type", () => {
         new ProductionRule({from: "S", to: "\\lambda"}),
         new ProductionRule({from: "SA", to: "ab"}),
         new ProductionRule({from: "SA", to: "a"}),
+        new ProductionRule({from: "\\Sigma", to: "a"}),
     ];
     rules.forEach((rule) => rule.setSymbols(terminals, nonterminals));
     expect(rules[0].type).toBe(3.1);
@@ -195,6 +196,7 @@ test("Production rule know what is its type", () => {
     expect(rules[6].type).toBe(3.1);
     expect(rules[7].type).toBe(1);
     expect(rules[8].type).toBe(0);
+    expect(rules[9].type).toBe(3.1);
 });
 
 test('findStringFromSet should find all strings', () => {
