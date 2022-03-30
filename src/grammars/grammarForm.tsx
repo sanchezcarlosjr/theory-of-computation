@@ -17,6 +17,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import {useEffect} from "react";
 
 const ProductionRulesList = (props: { production_rules: ProductionRule[], onClick?: (production_rule_index: number) => void }) => {
     return (
@@ -40,6 +41,8 @@ const GrammarDerivationFromUserInput = () => {
     const {values} = useFormState();
     const grammar = Grammar.parse(transformGrammarUpsert({id: values["id"] ?? "", grammar: values["grammar"]}));
     const {state, applyRule, reset} = useTransducerAutomaton(grammar.production_rules, grammar.start_symbol);
+
+    useEffect(() => reset(), [values]);
 
     const resetAll = () => {
         reset();
