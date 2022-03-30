@@ -186,7 +186,7 @@ class GrammarTypeAutomaton {
             2: 2,
             3.1: 3.1,
             3.2: 2,
-            "response": "3"
+            "response": "Left-regular grammar"
         },
         3.2: {
             0: 0,
@@ -194,7 +194,15 @@ class GrammarTypeAutomaton {
             2: 2,
             3.1: 2,
             3.2: 3.1,
-            "response": "Regular"
+            "response": "Right-regular grammar"
+        },
+        3: {
+            0: 0,
+            1: 1,
+            2: 2,
+            3.1: 3.1,
+            3.2: 3.2,
+            "response": "Regular grammar"
         }
     };
     transit(type_rule: number) {
