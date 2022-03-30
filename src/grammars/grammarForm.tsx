@@ -42,8 +42,6 @@ const GrammarDerivationFromUserInput = () => {
     const grammar = Grammar.parse(transformGrammarUpsert({id: values["id"] ?? "", grammar: values["grammar"]}));
     const {state, applyRule, reset} = useTransducerAutomaton(grammar.production_rules, grammar.start_symbol);
 
-    useEffect(() => reset(), [values]);
-
     const resetAll = () => {
         reset();
     }
