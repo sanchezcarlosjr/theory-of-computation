@@ -93,7 +93,7 @@ export function useTransducerAutomaton(production_rules: ProductionRule[], start
         if (production_rules[rule].is_a_terminal_rule) {
             setState({
                 history: [{from: `Start \\to ${start_symbol}`, to: start_symbol.toString(), byRule: -1}],
-                language: new Set(state.language.add(result))
+                language: new Set(state.language.add((result === "") ? "\\lambda" : result))
             });
         }
     }
@@ -154,12 +154,13 @@ export class TransducerAutomaton {
 }
 
 class GrammarTypeAutomaton {
-    actualState = 3.1;
+    actualState = 3;
     states: {[key: number]: any} = {
         0: {
             0: 0,
             1: 0,
             2: 0,
+            3: 0,
             3.1: 0,
             3.2: 0,
             "response": "0"
@@ -168,6 +169,7 @@ class GrammarTypeAutomaton {
             0: 0,
             1: 1,
             2: 1,
+            3: 1,
             3.1: 1,
             3.2: 1,
             "response": "1"
@@ -176,6 +178,7 @@ class GrammarTypeAutomaton {
             0: 0,
             1: 1,
             2: 2,
+            3: 2,
             3.1: 2,
             3.2: 2,
             "response": "2"
@@ -184,6 +187,7 @@ class GrammarTypeAutomaton {
             0: 0,
             1: 1,
             2: 2,
+            3: 3.1,
             3.1: 3.1,
             3.2: 2,
             "response": "Left-regular grammar"
@@ -192,6 +196,7 @@ class GrammarTypeAutomaton {
             0: 0,
             1: 1,
             2: 2,
+            3: 3.2,
             3.1: 2,
             3.2: 3.1,
             "response": "Right-regular grammar"
@@ -200,6 +205,7 @@ class GrammarTypeAutomaton {
             0: 0,
             1: 1,
             2: 2,
+            3: 3,
             3.1: 3.1,
             3.2: 3.2,
             "response": "Regular grammar"
@@ -214,7 +220,7 @@ class GrammarTypeAutomaton {
 }
 
 export class Grammar {
-    private _type = 3.1;
+    private _type = 3;
 
     constructor(
         private _name: string,
