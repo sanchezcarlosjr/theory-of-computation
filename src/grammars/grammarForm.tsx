@@ -17,23 +17,16 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import {useEffect} from "react";
 
 const ProductionRulesList = (props: { production_rules: ProductionRule[], onClick?: (production_rule_index: number) => void }) => {
-    return (
-        <MenuList dense>
-            {
-                props.production_rules.map((rule, index) => (
-                    <MenuItem key={rule.showAsChomskyForm()}
-                              onClick={() => props.onClick ? props.onClick(index) : null}>
-                        <ListItemText inset>
-                            <MathFieldComponent readOnly value={rule.showAsChomskyForm()}/>
-                        </ListItemText>
-                    </MenuItem>
-                ))
-            }
-        </MenuList>
-    );
+    return (<MenuList dense>
+        {props.production_rules.map((rule, index) => (<MenuItem key={rule.showAsChomskyForm()}
+                                                                onClick={() => props.onClick ? props.onClick(index) : null}>
+            <ListItemText inset>
+                <MathFieldComponent readOnly value={rule.showAsChomskyForm()}/>
+            </ListItemText>
+        </MenuItem>))}
+    </MenuList>);
 }
 
 
@@ -46,56 +39,49 @@ const GrammarDerivationFromUserInput = () => {
         reset();
     }
 
-    return (
-        <Grid container spacing={2}>
-            <Grid item xs={3} md={3}>
-                <p>Type {grammar.type}</p>
-                <ProductionRulesList production_rules={grammar.production_rules} onClick={applyRule}/>
-            </Grid>
-            <Grid item>
-                <TableContainer component={Paper}>
-                    <Table aria-label="Grammar Derivation">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Rule</TableCell>
-                                <TableCell align="right">Application</TableCell>
-                                <TableCell align="right">Result</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {state.history.map((row, index) => (
-                                <TableRow key={`${row.byRule}${index}`}>
-                                    <TableCell component="th" scope="row">
-                                        <MathFieldComponent readOnly
-                                                            value={row.byRule >= 0 ? grammar.production_rules[row.byRule].showAsChomskyForm() : `Start \\to ${grammar.start_symbol}`}/>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <MathFieldComponent readOnly value={row.from}/>
-                                    </TableCell>
-                                    <TableCell align="right">
-                                        <MathFieldComponent readOnly value={row.to}/>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <Button label="Reset" onClick={resetAll}/>
-            </Grid>
-            <Grid item>
-                <MathFieldComponent readOnly value={`L(G)=\\{${Array.from(state.language).join(",")}\\}`}/>
-            </Grid>
+    return (<Grid container spacing={2}>
+        <Grid item xs={3} md={3}>
+            <p>Type {grammar.type}</p>
+            <ProductionRulesList production_rules={grammar.production_rules} onClick={applyRule}/>
         </Grid>
-    );
+        <Grid item>
+            <TableContainer component={Paper}>
+                <Table aria-label="Grammar Derivation">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Rule</TableCell>
+                            <TableCell align="right">Application</TableCell>
+                            <TableCell align="right">Result</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {state.history.map((row, index) => (<TableRow key={`${row.byRule}${index}`}>
+                            <TableCell component="th" scope="row">
+                                <MathFieldComponent readOnly
+                                                    value={row.byRule >= 0 ? grammar.production_rules[row.byRule].showAsChomskyForm() : `Start \\to ${grammar.start_symbol}`}/>
+                            </TableCell>
+                            <TableCell align="right">
+                                <MathFieldComponent readOnly value={row.from}/>
+                            </TableCell>
+                            <TableCell align="right">
+                                <MathFieldComponent readOnly value={row.to}/>
+                            </TableCell>
+                        </TableRow>))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <Button label="Reset" onClick={resetAll}/>
+        </Grid>
+        <Grid item>
+            <MathFieldComponent readOnly value={`L(G)=\\{${Array.from(state.language).join(",")}\\}`}/>
+        </Grid>
+    </Grid>);
 };
 
 // https://cortexjs.io/mathlive/demo/
-const initialValue =
-    "\\begin{equation*} G=\\left\\lbrace terminal:\\left\\lbrace a\\right\\rbrace,nonterminal:\\left\\lbrace\\Sigma,S\\right\\rbrace,start\\_symbol:\\Sigma,production\\_rules:\\left\\lbrace\\Sigma\\to S,S\\to\\lambda,S\\to a\\rbrace\\right\\rbrace\\right \\end{equation*}";
-export const GrammarForm = (props: any) => (
-    <SimpleForm warnWhenUnsavedChanges {...props}>
-        <MathInput source="grammar" initialValue={initialValue} label="Grammar"
-                   validate={required("A grammar is required")}/>
-        <GrammarDerivationFromUserInput/>
-    </SimpleForm>
-)
+const initialValue = "\\begin{equation*} G=\\left\\lbrace terminal:\\left\\lbrace a\\right\\rbrace,nonterminal:\\left\\lbrace\\Sigma,S\\right\\rbrace,start\\_symbol:\\Sigma,production\\_rules:\\left\\lbrace\\Sigma\\to S,S\\to\\lambda,S\\to a\\rbrace\\right\\rbrace\\right \\end{equation*}";
+export const GrammarForm = (props: any) => (<SimpleForm warnWhenUnsavedChanges {...props}>
+    <MathInput source="grammar" initialValue={initialValue} label="Grammar"
+               validate={required("A grammar is required")}/>
+    <GrammarDerivationFromUserInput/>
+</SimpleForm>)
