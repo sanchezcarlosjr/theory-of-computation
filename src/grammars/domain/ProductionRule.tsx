@@ -40,7 +40,7 @@ export class ProductionRule {
         return this._is_a_terminal_rule;
     }
 
-    private _type: number = 3.1;
+    private _type: number = 3;
 
     get type(): number {
         return this._type;
@@ -94,15 +94,19 @@ export class ProductionRule {
             this._type = 1;
             return;
         }
-        if(this.to[0] === "\\lambda"  || this.to[0] === "\\epsilon") {
-            this._type = 3.1;
-            return;
-        }
         const all_terminals = this.to.filter((toSymbol) => this.nonterminals.has(toSymbol));
-        if(all_terminals.length <= 1) {
+        if(all_terminals.length >= 2) {
+            this._type = 2;
+            return;
+        }
+        if(this.nonterminals.has(this.to[0]) && this.to.length !== 1) {
             this._type = 3.1;
             return;
         }
-        this._type = 2;
+        if(this.nonterminals.has(this.to[this.to.length-1]) && this.to.length !== 1) {
+            this._type = 3.2;
+            return;
+        }
+        this._type = 3;
     }
 }
