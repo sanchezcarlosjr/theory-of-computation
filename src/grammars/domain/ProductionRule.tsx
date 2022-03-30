@@ -57,7 +57,10 @@ export class ProductionRule {
     }
 
     derive(derivative_string: String) {
-        return derivative_string.replace(this.rule.from, this.rule.to+" ");
+        if(this.rule.to === "\\lambda" || this.rule.to === "\\epsilon") {
+            return derivative_string.replace(this.rule.from, "");
+        }
+        return derivative_string.replace(this.rule.from, this.rule.to);
     }
 
     showAsChomskyForm() {
