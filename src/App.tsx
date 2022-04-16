@@ -6,6 +6,7 @@ import LoginPage from "./@core/application/layout/Login";
 import {Helmet} from "react-helmet";
 import React from "react";
 import {theme} from "./@core/application/layout/Theme";
+import automata from "./automata";
 
 
 const App = () => (
@@ -21,6 +22,7 @@ const App = () => (
             loginPage={LoginPage}
         >
             <Resource name="grammars" {...grammar} />
+            <Resource name="automata" {...automata} />
         </Admin>
     </main>
 );
