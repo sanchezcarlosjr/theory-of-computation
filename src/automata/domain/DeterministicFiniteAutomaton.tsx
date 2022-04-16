@@ -7,4 +7,14 @@ export class DeterministicFiniteAutomaton extends FiniteAutomaton {
 
     transit(symbol: string): void {
     }
+
+    iterate(f: (state: string, symbol: string, rState: string) => void): void {
+        this.states.forEach((state) => Object.keys(this.delta[state])
+            .forEach((symbol) => {
+                f(
+                    state,
+                    symbol,
+                    (this.delta[state][symbol] as string));
+            }));
+    }
 }

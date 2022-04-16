@@ -1,5 +1,5 @@
 export interface Delta {
     [state: string]: {
-        [symbol: string]: Set<string> | string | number
+        [symbol: string]: Set<string> | string | number| boolean
     }
 }

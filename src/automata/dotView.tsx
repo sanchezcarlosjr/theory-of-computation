@@ -1,29 +1,25 @@
 import {FiniteAutomaton} from "./domain/FiniteAutomaton";
 
 export class DotView {
-    constructor(private finiteAutomaton: FiniteAutomaton) {
-    }
-
-    transform(): string {
-        const acceptingStates = Array.from(this.finiteAutomaton.accepting_states).join(" ");
+    transform(finiteAutomaton: FiniteAutomaton): string {
+        let acceptingStates = Array.from(finiteAutomaton.accepting_states).join(" ");
+        acceptingStates = acceptingStates === "" ? "" : `node [shape = doublecircle]; ${acceptingStates};`;
         let nodes: string = "";
-        this.finiteAutomaton.states.forEach((state) => {
-            Object.keys(this.finiteAutomaton.delta[state]).forEach((symbol) => {
-                (this.finiteAutomaton.delta[state][symbol] as Set<string>)
-                    .forEach((rState) =>
-                        nodes = nodes + `${state} -> ${rState} [label = "${symbol}"];`);
-            })
-        });
+        finiteAutomaton.iterate((state, symbol, rState) =>
+            nodes = nodes + `${state} -> ${rState} [label = "${symbol}"];`
+        );
         return `
-        digraph finite_state_machine {
-            \tfontname="Helvetica,Arial,sans-serif"
-            \tnode [fontname="Helvetica,Arial,sans-serif"]
-            \tedge [fontname="Helvetica,Arial,sans-serif"]
-            \trankdir=LR;
-            \tnode [shape = doublecircle]; ${acceptingStates};
-            \tnode [shape = circle];
-              ${nodes}
-            }
+             digraph finite_state_machine {
+                fontname="Helvetica,Arial,sans-serif"
+                node [fontname="Helvetica,Arial,sans-serif"]
+                edge [fontname="Helvetica,Arial,sans-serif"]
+                rankdir=LR;
+                node [shape = point ]; qi
+                ${acceptingStates}
+                node [shape = circle];
+                qi -> ${finiteAutomaton.startState};
+                ${nodes}
+        }
         `;
     }
 }

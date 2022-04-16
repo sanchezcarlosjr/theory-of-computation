@@ -26,15 +26,17 @@ const DeterministicFiniteAutomatonInput = () => {
     const {values} = useFormState();
     try {
         const json = JSON.parse(values['nfa']);
-        const nondeterministicFiniteAutomatonInput = new NondeterministicFiniteAutomaton(json);
-        const dotView = new DotView(nondeterministicFiniteAutomatonInput);
+        const nondeterministicFiniteAutomaton = new NondeterministicFiniteAutomaton(json);
+        const deterministicFiniteAutomaton = nondeterministicFiniteAutomaton.toDeterministicFiniteAutomaton();
+        const dotView = new DotView();
         return (<>
             <section>
                 <h2>NFA</h2>
-                <Graphviz dot={dotView.transform()}/>
+                <Graphviz dot={dotView.transform(nondeterministicFiniteAutomaton)}/>
             </section>
             <section>
                 <h2>DFA</h2>
+                <Graphviz dot={dotView.transform(deterministicFiniteAutomaton)}/>
             </section>
         </>);
     } catch (e: any) {

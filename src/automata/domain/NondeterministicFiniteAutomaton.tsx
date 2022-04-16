@@ -2,13 +2,23 @@ import {FiniteAutomaton} from "./FiniteAutomaton";
 import {DeterministicFiniteAutomaton} from "./DeterministicFiniteAutomaton";
 import {Queue} from "../../@shared/Queue";
 import {Delta} from "./Delta";
-import {union} from "../../@shared/SetUnion";
+import {intersection, union} from "../../@shared/SetOperations";
 
 
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     constructor(delta: Delta, startState: string = "") {
         super(delta, startState);
         this.ensureIsASet();
+    }
+
+    iterate(f: (state: string, symbol: string, rState: string) => void): void {
+        this.states.forEach((state) =>
+            Object.keys(this.delta[state])
+                .forEach((symbol) =>
+                (this.delta[state][symbol] as Set<string>)
+                    .forEach((rState) => f(state, symbol, rState))
+            )
+        );
     }
 
     accepts(symbol: string): boolean {
@@ -22,24 +32,38 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         const delta: Delta = {};
         const visitedStates = new Set<string>();
         const queue = new Queue<Set<string>>(new Set<string>([this.startState]));
-        const startState = `{${this.startState}}`;
+        const startState = this.startState;
         while (!queue.isEmpty()) {
             const states = queue.dequeue();
-            const key = `{${[...states].join(",")}}`;
+            const key = [...states].join("");
             delta[key] = {};
+            if (intersection(this.accepting_states, states).size > 0) {
+                delta[key]["accept"] = true;
+            }
             this.alphabet.forEach((symbol) => {
-                const rState = this.deltaTransition(states, symbol);
-                const newKey = `{${[...rState as Set<string>].sort().join(",")}}`;
+                const rStates = this.deltaTransition(states, symbol) as Set<string>;
+                const newKey = [...rStates].sort().join("");
                 delta[key][symbol] = newKey;
                 if (!visitedStates.has(newKey)) {
                     visitedStates.add(newKey);
-                    queue.enqueue(rState as Set<string>);
+                    queue.enqueue(rStates as Set<string>);
                 }
             });
         }
         return new DeterministicFiniteAutomaton(delta, startState);
     }
 
+    // δn(S,a)=∪δm(p,a), p in S
+    deltaTransition(state: string | Set<string | number> | number, symbol: string) {
+        if (typeof state == "number" || typeof state == "string") {
+            state = new Set<string | number>([state]);
+        }
+        let temp = new Set<string>();
+        state.forEach((rState) => {
+            temp = union(temp, this.delta[rState][symbol] as Set<string>);
+        });
+        return temp;
+    }
 
     private ensureIsASet() {
         Object.keys(this.delta).forEach((state) =>
@@ -57,17 +81,5 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
                 }
             })
         );
-    }
-
-    // δn(S,a)=∪δm(p,a), p in S
-    deltaTransition(state: string|Set<string|number>|number, symbol: string) {
-        if(typeof state == "number" || typeof state == "string") {
-            state = new Set<string|number>([state]);
-        }
-        let temp = new Set<string>();
-        state.forEach((rState) => {
-            temp = union(temp, this.delta[rState][symbol] as Set<string>);
-        });
-        return temp;
     }
 }
