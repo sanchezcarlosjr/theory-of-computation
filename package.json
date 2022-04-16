@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "firebase": "^9.6.7",
+    "graphviz-react": "^1.2.0",
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-admin": "^3.19.10",
@@ -61,7 +62,6 @@
     ]
   },
   "devDependencies": {
-    "eslint-plugin-cypress": "^2.12.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
@@ -72,6 +72,7 @@
     "@types/react-dom": "^16.9.14",
     "@types/react-helmet": "^6.1.5",
     "cypress": "^9.5.1",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "eslint-plugin-cypress": "^2.12.1"
   }
 }

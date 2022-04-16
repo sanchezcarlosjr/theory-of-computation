@@ -4,10 +4,11 @@ import {Queue} from "../../@shared/Queue";
 import {Delta} from "./Delta";
 import {union} from "../../@shared/SetUnion";
 
+
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
-    constructor(delta: Delta, startState: string) {
+    constructor(delta: Delta, startState: string = "") {
         super(delta, startState);
-        this.ensureDeltaHasAllAlphabet();
+        this.ensureIsASet();
     }
 
     accepts(symbol: string): boolean {
@@ -39,12 +40,23 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         return new DeterministicFiniteAutomaton(delta, startState);
     }
 
-    private ensureDeltaHasAllAlphabet() {
-        Object.keys(this.delta).forEach((state) => this.alphabet.forEach((symbol) => {
-            if (!this.delta[state].hasOwnProperty(symbol)) {
-                this.delta[state][symbol] = new Set<string>();
-            }
-        }));
+
+    private ensureIsASet() {
+        Object.keys(this.delta).forEach((state) =>
+            Object.keys(this.delta[state]).forEach((symbol) => {
+                if (Array.isArray(this.delta[state][symbol])) {
+                    this.delta[state][symbol] = new Set<string>(this.delta[state][symbol] as unknown as string[]);
+                    return;
+                }
+                if (typeof this.delta[state][symbol] === "string" || typeof this.delta[state][symbol] === "number") {
+                    this.delta[state][symbol] = new Set<string>([this.delta[state][symbol] as string]);
+                    return;
+                }
+                if (!this.delta[state].hasOwnProperty(symbol)) {
+                    this.delta[state][symbol] = new Set<string>();
+                }
+            })
+        );
     }
 
     // δn(S,a)=∪δm(p,a), p in S
