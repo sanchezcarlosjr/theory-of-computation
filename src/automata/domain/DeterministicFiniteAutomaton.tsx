@@ -67,7 +67,7 @@ export class DeterministicFiniteAutomaton extends FiniteAutomaton {
             history.push(currentPartition);
             const whereIsState: { [state: string]: string } = {};
             this.states.forEach((state) =>
-                currentPartition.forEach((subPartition: Set<string>, index: number) => {
+                history[history.length-1].forEach((subPartition: Set<string>, index: number) => {
                     if (subPartition.has(state)) {
                         whereIsState[state] = index.toString();
                     }
