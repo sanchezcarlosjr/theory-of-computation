@@ -42,6 +42,60 @@ describe('Automata domain', () => {
                 },
             }, "A"));
         });
+        test('determine initial partition', () => {
+            const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
+                "A": {
+                    "0": "B",
+                    "1": "A",
+                    "accept": true
+                },
+                "B": {
+                    "0": "B",
+                    "1": "B"
+                },
+                "C": {
+                    "0": "A",
+                    "1": "C"
+                }
+            }, "A");
+            const history = deterministicFiniteAutomaton.findEquivalentStates();
+            expect(history).toEqual([[['A'], ['B', 'C']], [['A'], ['B'], ['C']]]);
+        });
+        test('remove equivalent states', () => {
+            const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
+                "A": {
+                    "0": "B",
+                    "1": "A",
+                    "accept": true
+                },
+                "B": {
+                    "0": "B",
+                    "1": "B",
+                    "accept": true
+                },
+                "C": {
+                    "0": "A",
+                    "1": "C"
+                }
+            }, "A");
+            const automaton = deterministicFiniteAutomaton.removeEquivalentStates();
+            expect(automaton).toEqual(new DeterministicFiniteAutomaton({
+                "A": {
+                    "0": "A",
+                    "1": "A",
+                    "accept": true
+                },
+                "B": {
+                    "0": "A",
+                    "1": "A",
+                    "accept": true
+                },
+                "C": {
+                    "0": "A",
+                    "1": "C"
+                }
+            }, "A"));
+        });
     });
     describe('NondeterministicFiniteAutomaton', () => {
         test('ensure delta has all alphabet', () => {

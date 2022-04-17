@@ -60,7 +60,7 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         }
         let temp = new Set<string>();
         state.forEach((rState) => {
-            temp = union(temp, this.delta[rState][symbol] as Set<string>);
+            temp = union(temp, this.delta[rState] === undefined ? new Set<string>(): this.delta[rState][symbol] as Set<string>);
         });
         return temp;
     }
@@ -72,11 +72,11 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     }
 
     private buildSetFrom(state: string, symbol: string): Set<string> {
-        if (!this.delta[state].hasOwnProperty(symbol)) {
+        if (this.delta[state] === undefined || !this.delta[state].hasOwnProperty(symbol)) {
             return new Set<string>();
         }
         if (typeof this.delta[state][symbol] === "string" || typeof this.delta[state][symbol] === "number") {
-            return new Set<string>([this.delta[state][symbol] as string]);
+            return new Set<string>([this.getState(state, symbol) as string]);
         }
         if (Array.isArray(this.delta[state][symbol])) {
             return new Set<string>(this.delta[state][symbol] as unknown as string[]);

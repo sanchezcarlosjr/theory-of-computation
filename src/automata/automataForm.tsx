@@ -3,7 +3,7 @@ import * as React from "react";
 import {useFormState} from "react-final-form";
 import {NondeterministicFiniteAutomaton} from "./domain/NondeterministicFiniteAutomaton";
 import Graphviz from "graphviz-react";
-import {DotView} from "./dotView";
+import {FiniteAutomaton} from "./domain/FiniteAutomaton";
 
 const initialAutomata = `{
   "q0": {
@@ -21,6 +21,27 @@ const initialAutomata = `{
    }
 }`;
 
+const FiniteAutomatonGraphviz = ({finiteAutomaton}: {finiteAutomaton: FiniteAutomaton}) => {
+    let acceptingStates = Array.from(finiteAutomaton.accepting_states).join(" ");
+    acceptingStates = acceptingStates === "" || acceptingStates === " " ? "" : `node [shape = doublecircle]; ${acceptingStates};`;
+    let nodes: string = "";
+    finiteAutomaton.iterate((state, symbol, rState) =>
+        nodes = nodes + `${state === " " || state === "" ? "Ø" : state} -> ${rState === " " || rState === "" ? "Ø" : rState} [label = "${symbol}"];`
+    );
+    return <Graphviz dot={`
+             digraph finite_state_machine {
+                fontname="Helvetica,Arial,sans-serif"
+                node [fontname="Helvetica,Arial,sans-serif"]
+                edge [fontname="Helvetica,Arial,sans-serif"]
+                rankdir=LR;
+                node [shape = point ]; qi
+                ${acceptingStates}
+                node [shape = circle];
+                qi -> ${finiteAutomaton.startState};
+                ${nodes}
+        }
+        `}/>;
+}
 
 const DeterministicFiniteAutomatonInput = () => {
     const {values} = useFormState();
@@ -28,15 +49,23 @@ const DeterministicFiniteAutomatonInput = () => {
         const json = JSON.parse(values['nfa']);
         const nondeterministicFiniteAutomaton = new NondeterministicFiniteAutomaton(json);
         const deterministicFiniteAutomaton = nondeterministicFiniteAutomaton.toDeterministicFiniteAutomaton();
-        const dotView = new DotView();
+        const equivalentStates  = deterministicFiniteAutomaton.findEquivalentStates();
+        const minDeterministicFiniteAutomaton = deterministicFiniteAutomaton.minimize();
         return (<>
             <section>
                 <h2>NFA</h2>
-                <Graphviz dot={dotView.transform(nondeterministicFiniteAutomaton)}/>
+                <FiniteAutomatonGraphviz finiteAutomaton={nondeterministicFiniteAutomaton} />
             </section>
             <section>
                 <h2>DFA</h2>
-                <Graphviz dot={dotView.transform(deterministicFiniteAutomaton)}/>
+                <FiniteAutomatonGraphviz finiteAutomaton={deterministicFiniteAutomaton} />
+            </section>
+            <section>
+                <h2>DFA Minimization</h2>
+                {
+                    equivalentStates.map((equivalentState, index) => (<p>p{index}:{equivalentState.join(",")}</p>))
+                }
+                <FiniteAutomatonGraphviz finiteAutomaton={minDeterministicFiniteAutomaton} />
             </section>
         </>);
     } catch (e: any) {

@@ -15,3 +15,11 @@ export function intersection(setA: Set<any>, setB: Set<any>|Array<any>) {
     }
     return _intersection;
 }
+
+export function difference(setA: Set<any>, setB: Set<any>) {
+    let _difference = new Set(setA);
+    for (let elem of setB) {
+        _difference.delete(elem);
+    }
+    return _difference;
+}

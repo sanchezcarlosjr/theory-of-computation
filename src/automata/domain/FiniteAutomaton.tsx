@@ -25,6 +25,13 @@ export abstract class FiniteAutomaton {
         return this._startState;
     }
 
+    getState(state: string, symbol: string) {
+        if(this._delta[state] === undefined || this._delta[state][symbol] === undefined) {
+            return state;
+        }
+        return this._delta[state][symbol];
+    }
+
     get delta(): Delta {
         return this._delta;
     }
