@@ -8,7 +8,7 @@ import {intersection, union} from "../../@shared/SetOperations";
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     constructor(delta: Delta, startState: string = "") {
         super(delta, startState);
-        this.ensureIsASet();
+        this.ensureAlphabetIsInDelta();
     }
 
     iterate(f: (state: string, symbol: string, rState: string) => void): void {
@@ -60,26 +60,27 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         }
         let temp = new Set<string>();
         state.forEach((rState) => {
-            temp = union(temp, this.delta[rState][symbol] as Set<string>);
+            temp = union(temp, this.delta[rState] === undefined ? new Set<string>(): this.delta[rState][symbol] as Set<string>);
         });
         return temp;
     }
 
-    private ensureIsASet() {
-        Object.keys(this.delta).forEach((state) =>
-            Object.keys(this.delta[state]).forEach((symbol) => {
-                if (Array.isArray(this.delta[state][symbol])) {
-                    this.delta[state][symbol] = new Set<string>(this.delta[state][symbol] as unknown as string[]);
-                    return;
-                }
-                if (typeof this.delta[state][symbol] === "string" || typeof this.delta[state][symbol] === "number") {
-                    this.delta[state][symbol] = new Set<string>([this.delta[state][symbol] as string]);
-                    return;
-                }
-                if (!this.delta[state].hasOwnProperty(symbol)) {
-                    this.delta[state][symbol] = new Set<string>();
-                }
-            })
+    private ensureAlphabetIsInDelta() {
+        this.alphabet.forEach((symbol) =>
+            this.states.forEach((state) => this.delta[state][symbol] = this.buildSetFrom(state, symbol))
         );
+    }
+
+    private buildSetFrom(state: string, symbol: string): Set<string> {
+        if (this.delta[state] === undefined || !this.delta[state].hasOwnProperty(symbol)) {
+            return new Set<string>();
+        }
+        if (typeof this.delta[state][symbol] === "string" || typeof this.delta[state][symbol] === "number") {
+            return new Set<string>([this.getState(state, symbol) as string]);
+        }
+        if (Array.isArray(this.delta[state][symbol])) {
+            return new Set<string>(this.delta[state][symbol] as unknown as string[]);
+        }
+        return this.delta[state][symbol] as Set<string>;
     }
 }

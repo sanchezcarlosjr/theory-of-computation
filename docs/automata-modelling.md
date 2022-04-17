@@ -7,15 +7,21 @@ abstract class FiniteAutomaton {
    states
    startState
    actualState
-   transite()
+   transite(symbol)
    accepts()
    reset()
 }
 class NondeterministicFiniteAutomaton {
   toDeterministicFiniteAutomaton()
 }
-class DeterministicFiniteAutomaton
+class DeterministicFiniteAutomaton {
+  minimize()
+}
 NondeterministicFiniteAutomaton --> DeterministicFiniteAutomaton
 FiniteAutomaton <|-- NondeterministicFiniteAutomaton
 FiniteAutomaton <|-- DeterministicFiniteAutomaton
+DeterministicFiniteAutomaton --> FiniteAutomatonMinimization
+class FiniteAutomatonMinimization {
+minimize()
+}
 ```
