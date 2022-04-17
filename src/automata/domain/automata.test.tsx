@@ -9,6 +9,40 @@ function convertNFAToDFABy(delta: Delta, startState: string) {
 
 // John E. Hopcroft, Rajeev Motwani, Jeffrey D. Ullman-Introduction to Automata Theory, Languages, and Computations-Prentice Hall (2006) Exercises
 describe('Automata domain', () => {
+    describe('Automata Minimization', () => {
+        test('minimize moore machine', () => {
+            const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
+                "A": {
+                    "0": "B",
+                    "1": "A",
+                    "accept": true
+                },
+                "B": {
+                    "0": "B",
+                    "1": "B",
+                    "accept": true
+                },
+                "C": {
+                    "0": "A",
+                    "1": "C",
+                    "accept": true
+                }
+            }, "A");
+            const dfa = deterministicFiniteAutomaton.removeUnreachableStates();
+            expect(dfa).toEqual(new DeterministicFiniteAutomaton({
+                "A": {
+                    "0": "B",
+                    "1": "A",
+                    "accept": true
+                },
+                "B": {
+                    "0": "B",
+                    "1": "B",
+                    "accept": true
+                },
+            }, "A"));
+        });
+    });
     describe('NondeterministicFiniteAutomaton', () => {
         test('ensure delta has all alphabet', () => {
             const delta = {

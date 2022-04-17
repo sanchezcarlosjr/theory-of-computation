@@ -1,4 +1,5 @@
 import {Delta} from "./Delta";
+import {clone} from 'lodash';
 
 export abstract class FiniteAutomaton {
     private readonly _alphabet = new Set<string>();
@@ -38,6 +39,10 @@ export abstract class FiniteAutomaton {
         return this._alphabet;
     }
 
+    get states_as_array(): Array<string> {
+        return Array.from(this.states);
+    }
+
     get states(): Set<string> {
         return this._states;
     }
@@ -64,5 +69,9 @@ export abstract class FiniteAutomaton {
 
     reset() {
         this._actualState = this._startState;
+    }
+
+    clone() {
+        return clone(this);
     }
 }
