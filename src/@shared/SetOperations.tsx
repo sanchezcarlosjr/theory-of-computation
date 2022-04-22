@@ -1,4 +1,7 @@
 export function union(setA: Set<any>, setB: Set<any>|Array<any>) {
+    if (setB === undefined) {
+        return setA;
+    }
     let _union = new Set(setA);
     for (let elem of setB) {
         _union.add(elem);

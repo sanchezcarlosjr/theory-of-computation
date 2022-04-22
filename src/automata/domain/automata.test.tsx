@@ -13,49 +13,30 @@ describe('Automata domain', () => {
         test('minimize moore machine', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C",
-                    "accept": true
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C", "accept": true
                 }
             }, "A");
             const dfa = deterministicFiniteAutomaton.removeUnreachableStates();
             expect(dfa).toEqual(new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
                 },
             }, "A"));
         });
         test('determine initial partition', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B"
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B"
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A");
             const history = deterministicFiniteAutomaton.findEquivalentStates();
@@ -64,40 +45,126 @@ describe('Automata domain', () => {
         test('remove equivalent states', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A");
             const automaton = deterministicFiniteAutomaton.removeEquivalentStates();
             expect(automaton).toEqual(new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "A",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "A",
-                    "1": "A",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "A", "1": "A", "accept": true
+                }, "B": {
+                    "0": "A", "1": "A", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A"));
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
+        test.only('it should convert example UABC 2022', () => {
+            const dfa = convertNFAToDFABy({
+                "A": {
+                    "0": ["A", "B"],
+                    "start": true
+                },
+                "B": {
+                    "0": ["A"],
+                    "1": ["C"]
+                },
+                "C": {
+                    "0": ["C"],
+                    "accept": true
+                },
+                "D": {
+                    "0": "D",
+                    "1": "E",
+                    "accept": true
+                },
+                "E": {
+                    "0": "D",
+                    "1": "C",
+                    "start": true
+                }
+            }, "");
+            console.log(dfa);
+        });
+        test("it should build start states (>=2) to epsilon states", () => {
+            const nfa = new NondeterministicFiniteAutomaton({
+                "1": {
+                    "": "3", "b": "2", "start": true
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]), "b": "3", "start": true
+                }, "3": {
+                    "a": "1"
+                }
+            }, "1");
+            expect(nfa).toEqual(new NondeterministicFiniteAutomaton({
+                "START_STATE": {
+                    "": new Set<string>(["1", "2"])
+                },
+                "1": {
+                    "": "3", "b": "2"
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]), "b": "3"
+                }, "3": {
+                    "a": "1"
+                }
+            }, "START_STATE"));
+        });
+        test("it should convert nfa to dfa with epsilon states", () => {
+            const dfa = convertNFAToDFABy({
+                "1": {
+                    "": "3", "b": "2", "accept": true
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]), "b": "3"
+                }, "3": {
+                    "a": "1"
+                }
+            }, "1");
+            expect(dfa).toEqual(new DeterministicFiniteAutomaton({
+                "13": {
+                    "a": "13", "b": "2", "accept": true
+                }, "2": {
+                    "a": "23", "b": "3"
+                }, "3": {
+                    "a": "13", "b": "NULL"
+                }, "23": {
+                    "a": "123", "b": "3"
+                }, "123": {
+                    "a": "123", "b": "23", "accept": true
+                }, "NULL": {
+                    "a": "NULL", "b": "NULL"
+                }
+            }, "13"));
+        });
+        test('it should reaches epsilon-closure states', () => {
+            const delta = {
+                "1": {
+                    "": new Set<string>(["2", "4"]),
+                }, "2": {
+                    "": new Set<string>(["3"])
+                }, "3": {
+                    "": new Set<string>(["6"])
+                }, "4": {
+                    "a": new Set<string>(["5"])
+                }, "5": {
+                    "b": new Set<string>(["6"]), "": new Set<string>(["7"])
+                }, "6": {}, "7": {}, "8": {"a": "6", "b": "7"}
+            };
+            const nfa = new NondeterministicFiniteAutomaton(delta);
+            expect(nfa.reachesEpsilonClosureStates("8")).toEqual(new Set<string>(["8"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["6", "7"]))).toEqual(new Set<string>(["6", "7"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["5", "6", "7"]))).toEqual(new Set<string>(["5", "6", "7"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["3"]))).toEqual(new Set<string>(["3", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["1"]))).toEqual(new Set<string>(["1", "2", "3", "4", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["1", "3"]))).toEqual(new Set<string>(["1", "2", "3", "4", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["3", "4"]))).toEqual(new Set<string>(["3", "6", "4"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["2", "5"]))).toEqual(new Set<string>(["2", "3", "6", "5", "7"]));
+        });
         test('ensure delta has all alphabet', () => {
             const delta = {
                 "q0": {
@@ -191,47 +258,35 @@ describe('Automata domain', () => {
             const deterministicFiniteAutomaton: DeterministicFiniteAutomaton = convertNFAToDFABy({
                 "p": {
                     "0": new Set<string>(["q", "s"]), "1": new Set<string>(["q"])
-                },
-                "q": {
+                }, "q": {
                     "0": new Set<string>(["r"]), "1": new Set<string>(["q", "r"])
-                },
-                "r": {
+                }, "r": {
                     "0": new Set<string>(["s"]), "1": new Set<string>(["p"])
-                },
-                "s": {
+                }, "s": {
                     "0": new Set<string>([]), "1": new Set<string>(["p"])
                 }
             }, "p");
             const expectedDeterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "p": {
                     "0": "qs", "1": "q"
-                },
-                "qs": {
+                }, "qs": {
                     "0": "r", "1": "pqr"
-                },
-                "q": {
+                }, "q": {
                     "0": "r", "1": "qr"
-                },
-                "qr": {
+                }, "qr": {
                     "0": "rs", "1": "pqr"
-                },
-                "r": {
+                }, "r": {
                     "0": "s", "1": "p"
-                },
-                "qrp": {
+                }, "pqr": {
                     "0": "qrs", "1": "pqr"
-                },
-                "s": {
-                    "0": "", "1": "p"
-                },
-                "rsq": {
-                    "0": "rs", "1": "pqr"
-                },
-                "": {
-                    "0": "", "1": ""
-                },
-                "rs": {
+                }, "s": {
+                    "0": "NULL", "1": "p"
+                }, "NULL": {
+                    "0": "NULL", "1": "NULL"
+                }, "rs": {
                     "0": "s", "1": "p"
+                }, "qrs": {
+                    "0": "rs", "1": "pqr"
                 }
             }, "p");
             expect(deterministicFiniteAutomaton).toEqual(expectedDeterministicFiniteAutomaton);

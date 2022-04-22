@@ -77,7 +77,6 @@ export class DeterministicFiniteAutomaton extends FiniteAutomaton {
             currentPartition.forEach((subPartition) => {
                 const newStateTable: { [key: string]: string[] } = {};
                 subPartition.forEach((state) => {
-                    // TODO: Use Commutative HASH.
                     const key = alphabet.reduce((acc, symbol) =>
                         [...acc, whereIsState[this.delta[state][symbol] as string]], [] as string[]).sort().join("");
                     newStateTable[key] = [...(newStateTable[key] ?? []), state];

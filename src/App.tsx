@@ -12,7 +12,7 @@ import automata from "./automata";
 const App = () => (
     <main>
         <Helmet>
-            <title>Grammar</title>
+            <title>Theory of computation</title>
             <meta name="description" content="Theory of computation - UABC | Carlos Eduardo Sanchez Torres"/>
         </Helmet>
         <Admin

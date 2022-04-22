@@ -1,12 +1,28 @@
 import {FiniteAutomaton} from "./FiniteAutomaton";
 import {DeterministicFiniteAutomaton} from "./DeterministicFiniteAutomaton";
-import {Queue} from "../../@shared/Queue";
 import {Delta} from "./Delta";
-import {intersection, union} from "../../@shared/SetOperations";
-
+import {union} from "../../@shared/SetOperations";
+import {NondeterministicFiniteAutomatonTransformer} from "./NondeterministicFiniteAutomatonTransformer";
+import {EpsilonClosureStateResearcher} from "./EpsilonClosureStateResearcher";
 
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     constructor(delta: Delta, startState: string = "") {
+        const states = Object.keys(delta);
+        const newStartStates: string[] = [];
+        states.forEach((state) => {
+            if (delta[state]["start"]) {
+                newStartStates.push(state);
+                delete delta[state]["start"];
+            }
+        });
+        if (newStartStates.length === 1) {
+            startState = newStartStates[0];
+        }
+        if (newStartStates.length > 1) {
+            startState = "START_STATE";
+            delta[startState] = {};
+            delta[startState][""] = new Set<string>(newStartStates);
+        }
         super(delta, startState);
         this.ensureAlphabetIsInDelta();
     }
@@ -15,9 +31,9 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         this.states.forEach((state) =>
             Object.keys(this.delta[state])
                 .forEach((symbol) =>
-                (this.delta[state][symbol] as Set<string>)
-                    .forEach((rState) => f(state, symbol, rState))
-            )
+                    (this.delta[state][symbol] as Set<string>)
+                        .forEach((rState) => f(state, symbol, rState))
+                )
         );
     }
 
@@ -29,40 +45,32 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     }
 
     toDeterministicFiniteAutomaton(): DeterministicFiniteAutomaton {
-        const delta: Delta = {};
-        const visitedStates = new Set<string>();
-        const queue = new Queue<Set<string>>(new Set<string>([this.startState]));
-        const startState = this.startState;
-        while (!queue.isEmpty()) {
-            const states = queue.dequeue();
-            const key = [...states].join("");
-            delta[key] = {};
-            if (intersection(this.accepting_states, states).size > 0) {
-                delta[key]["accept"] = true;
-            }
-            this.alphabet.forEach((symbol) => {
-                const rStates = this.deltaTransition(states, symbol) as Set<string>;
-                const newKey = [...rStates].sort().join("");
-                delta[key][symbol] = newKey;
-                if (!visitedStates.has(newKey)) {
-                    visitedStates.add(newKey);
-                    queue.enqueue(rStates as Set<string>);
-                }
-            });
-        }
-        return new DeterministicFiniteAutomaton(delta, startState);
+        const transformer = new NondeterministicFiniteAutomatonTransformer(this);
+        return transformer.toDeterministicFiniteAutomaton();
     }
 
     // δn(S,a)=∪δm(p,a), p in S
     deltaTransition(state: string | Set<string | number> | number, symbol: string) {
+        state = NondeterministicFiniteAutomaton.ensureStateIsAState(state);
+        let accumulator = new Set<string>();
+        state.forEach((rState) => {
+            if(this.delta[rState] !== undefined && this.delta[rState][symbol] !== undefined) {
+                accumulator = union(accumulator, this.delta[rState][symbol] as Set<string>);
+            }
+        });
+        return accumulator;
+    }
+
+    reachesEpsilonClosureStates(state: string | Set<string | number> | number) {
+        state = NondeterministicFiniteAutomaton.ensureStateIsAState(state);
+        return new EpsilonClosureStateResearcher(this).reaches(state);
+    }
+
+    private static ensureStateIsAState(state: string | Set<string | number> | number) {
         if (typeof state == "number" || typeof state == "string") {
             state = new Set<string | number>([state]);
         }
-        let temp = new Set<string>();
-        state.forEach((rState) => {
-            temp = union(temp, this.delta[rState] === undefined ? new Set<string>(): this.delta[rState][symbol] as Set<string>);
-        });
-        return temp;
+        return state;
     }
 
     private ensureAlphabetIsInDelta() {
