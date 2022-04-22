@@ -13,49 +13,30 @@ describe('Automata domain', () => {
         test('minimize moore machine', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C",
-                    "accept": true
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C", "accept": true
                 }
             }, "A");
             const dfa = deterministicFiniteAutomaton.removeUnreachableStates();
             expect(dfa).toEqual(new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
                 },
             }, "A"));
         });
         test('determine initial partition', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B"
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B"
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A");
             const history = deterministicFiniteAutomaton.findEquivalentStates();
@@ -64,35 +45,21 @@ describe('Automata domain', () => {
         test('remove equivalent states', () => {
             const deterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "B",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "B",
-                    "1": "B",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "B", "1": "A", "accept": true
+                }, "B": {
+                    "0": "B", "1": "B", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A");
             const automaton = deterministicFiniteAutomaton.removeEquivalentStates();
             expect(automaton).toEqual(new DeterministicFiniteAutomaton({
                 "A": {
-                    "0": "A",
-                    "1": "A",
-                    "accept": true
-                },
-                "B": {
-                    "0": "A",
-                    "1": "A",
-                    "accept": true
-                },
-                "C": {
-                    "0": "A",
-                    "1": "C"
+                    "0": "A", "1": "A", "accept": true
+                }, "B": {
+                    "0": "A", "1": "A", "accept": true
+                }, "C": {
+                    "0": "A", "1": "C"
                 }
             }, "A"));
         });
@@ -191,47 +158,36 @@ describe('Automata domain', () => {
             const deterministicFiniteAutomaton: DeterministicFiniteAutomaton = convertNFAToDFABy({
                 "p": {
                     "0": new Set<string>(["q", "s"]), "1": new Set<string>(["q"])
-                },
-                "q": {
+                }, "q": {
                     "0": new Set<string>(["r"]), "1": new Set<string>(["q", "r"])
-                },
-                "r": {
+                }, "r": {
                     "0": new Set<string>(["s"]), "1": new Set<string>(["p"])
-                },
-                "s": {
+                }, "s": {
                     "0": new Set<string>([]), "1": new Set<string>(["p"])
                 }
             }, "p");
             const expectedDeterministicFiniteAutomaton = new DeterministicFiniteAutomaton({
                 "p": {
                     "0": "qs", "1": "q"
-                },
-                "qs": {
+                }, "qs": {
                     "0": "r", "1": "pqr"
-                },
-                "q": {
+                }, "q": {
                     "0": "r", "1": "qr"
-                },
-                "qr": {
+                }, "qr": {
                     "0": "rs", "1": "pqr"
-                },
-                "r": {
+                }, "r": {
                     "0": "s", "1": "p"
-                },
-                "qrp": {
+                }, "pqr": {
                     "0": "qrs", "1": "pqr"
-                },
-                "s": {
+                }, "s": {
                     "0": "", "1": "p"
-                },
-                "rsq": {
-                    "0": "rs", "1": "pqr"
-                },
-                "": {
+                }, "": {
                     "0": "", "1": ""
-                },
-                "rs": {
+                }, "rs": {
                     "0": "s", "1": "p"
+                }, "qrs": {
+                    "0": "rs",
+                    "1": "pqr"
                 }
             }, "p");
             expect(deterministicFiniteAutomaton).toEqual(expectedDeterministicFiniteAutomaton);
