@@ -51,7 +51,7 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
 
     // δn(S,a)=∪δm(p,a), p in S
     deltaTransition(state: string | Set<string | number> | number, symbol: string) {
-        state = this.ensureStateIsAState(state);
+        state = NondeterministicFiniteAutomaton.ensureStateIsAState(state);
         let accumulator = new Set<string>();
         state.forEach((rState) => {
             if(this.delta[rState] !== undefined && this.delta[rState][symbol] !== undefined) {
@@ -62,11 +62,11 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     }
 
     reachesEpsilonClosureStates(state: string | Set<string | number> | number) {
-        state = this.ensureStateIsAState(state);
+        state = NondeterministicFiniteAutomaton.ensureStateIsAState(state);
         return new EpsilonClosureStateResearcher(this).reaches(state);
     }
 
-    private ensureStateIsAState(state: string | Set<string | number> | number) {
+    private static ensureStateIsAState(state: string | Set<string | number> | number) {
         if (typeof state == "number" || typeof state == "string") {
             state = new Set<string | number>([state]);
         }

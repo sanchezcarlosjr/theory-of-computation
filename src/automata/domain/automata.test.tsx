@@ -65,7 +65,7 @@ describe('Automata domain', () => {
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
-        test.only("it should build start states (>=2) to epsilon states", () => {
+        test("it should build start states (>=2) to epsilon states", () => {
             const nfa = new NondeterministicFiniteAutomaton({
                 "1": {
                     "": "3", "b": "2", "start": true
