@@ -23,7 +23,7 @@ export class NondeterministicFiniteAutomatonTransformer extends Graph {
     }
 
     generateKey(newStates: Set<string|number>): string {
-        if(newStates.size == 0) {
+        if(newStates.size === 0) {
             return "NULL";
         }
         return [...newStates].sort().join("");
@@ -38,7 +38,7 @@ export class NondeterministicFiniteAutomatonTransformer extends Graph {
     toDeterministicFiniteAutomaton(): DeterministicFiniteAutomaton {
         const breadthFirstSearcher = new BreadthFirstSearcher(this);
         breadthFirstSearcher.makeANewGraph();
-        return new DeterministicFiniteAutomaton(this.delta, Array.from(this.startState).join(""));
+        return new DeterministicFiniteAutomaton(this.delta, Array.from(this.startState).sort().join(""));
     }
 
     getAdjacentEdges(): Array<any> | Set<any> {

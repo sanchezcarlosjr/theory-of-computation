@@ -2,8 +2,7 @@ import {SimpleForm, TextInput} from "react-admin";
 import * as React from "react";
 import {useFormState} from "react-final-form";
 import {NondeterministicFiniteAutomaton} from "./domain/NondeterministicFiniteAutomaton";
-import Graphviz from "graphviz-react";
-import {FiniteAutomaton} from "./domain/FiniteAutomaton";
+import {FiniteAutomatonGraphviz} from "./finiteAutomatonGraphviz";
 
 const initialAutomata = `{
   "q0": {
@@ -20,28 +19,6 @@ const initialAutomata = `{
       "accept": true
    }
 }`;
-
-const FiniteAutomatonGraphviz = ({finiteAutomaton}: {finiteAutomaton: FiniteAutomaton}) => {
-    let acceptingStates = Array.from(finiteAutomaton.accepting_states).join(" ");
-    acceptingStates = acceptingStates === "" || acceptingStates === " " ? "" : `node [shape = doublecircle]; ${acceptingStates};`;
-    let nodes: string = "";
-    finiteAutomaton.iterate((state, symbol, rState) =>
-        nodes = nodes + `${state === " " || state === "" ? "Ø" : state} -> ${rState === " " || rState === "" ? "Ø" : rState} [label = "${symbol}"];`
-    );
-    return <Graphviz dot={`
-             digraph finite_state_machine {
-                fontname="Helvetica,Arial,sans-serif"
-                node [fontname="Helvetica,Arial,sans-serif"]
-                edge [fontname="Helvetica,Arial,sans-serif"]
-                rankdir=LR;
-                node [shape = point ]; qi
-                ${acceptingStates}
-                node [shape = circle];
-                qi -> ${finiteAutomaton.startState};
-                ${nodes}
-        }
-        `}/>;
-}
 
 const DeterministicFiniteAutomatonInput = () => {
     const {values} = useFormState();
@@ -76,6 +53,11 @@ const DeterministicFiniteAutomatonInput = () => {
 
 export const AutomataForm = (props: any) => {
     return (<SimpleForm {...props}>
+        <TextInput
+            source="name"
+            label="Name"
+            fullWidth
+        />
         <TextInput
             initialValue={initialAutomata}
             source="nfa"

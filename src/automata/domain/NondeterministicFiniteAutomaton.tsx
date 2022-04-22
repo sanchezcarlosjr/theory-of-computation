@@ -15,7 +15,7 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
                 delete delta[state]["start"];
             }
         });
-        if (newStartStates.length == 1) {
+        if (newStartStates.length === 1) {
             startState = newStartStates[0];
         }
         if (newStartStates.length > 1) {
