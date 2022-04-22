@@ -35,12 +35,16 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     // δn(S,a)=∪δm(p,a), p in S
     deltaTransition(state: string | Set<string | number> | number, symbol: string) {
         state = this.ensureStateIsAState(state);
-        let temp = new Set<string>();
+        let accumulator = new Set<string>();
         state.forEach((rState) => {
-            temp = union(temp, this.delta[rState] === undefined ? new Set<string>() : this.delta[rState][symbol] as Set<string>);
+            if(this.delta[rState] !== undefined || symbol !== '') {
+                accumulator = union(accumulator, this.delta[rState][symbol] as Set<string>);
+            }
         });
-        return temp;
+        return accumulator;
     }
+
+
 
     private ensureStateIsAState(state: string | Set<string | number> | number) {
         if (typeof state == "number" || typeof state == "string") {
