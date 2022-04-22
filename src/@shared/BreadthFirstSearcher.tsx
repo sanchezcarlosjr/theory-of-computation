@@ -16,7 +16,7 @@ export class BreadthFirstSearcher {
         while (!queue.isEmpty()) {
             const currentNode = queue.dequeue();
             this.graph.setUpKey(currentNode);
-            const edges = this.graph.getAdjacentEdges();
+            const edges = this.graph.getAdjacentEdges(currentNode);
             for (const edge of edges) {
                 const [newReachableNode, keyNode] = this.graph.makeANewNode(currentNode, edge);
                 if (!visitedNodes.has(keyNode)) {

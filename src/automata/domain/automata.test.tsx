@@ -76,11 +76,19 @@ describe('Automata domain', () => {
                 }, "4": {
                     "a": new Set<string>(["5"])
                 }, "5": {
-                    "b": new Set<string>(["7"])
-                }, "6": {}, "7": {}
+                    "b": new Set<string>(["6"]),
+                    "": new Set<string>(["7"])
+                }, "6": {}, "7": {}, "8": {"a": "6", "b": "7"}
             };
             const nfa = new NondeterministicFiniteAutomaton(delta);
-            expect(nfa.reachesEpsilonClosureStates("1")).toEqual(new Set<string>(["1", "2", "3", "4", "5", "6"]));
+            expect(nfa.reachesEpsilonClosureStates("8")).toEqual(new Set<string>(["8"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["6", "7"]))).toEqual(new Set<string>(["6", "7"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["5", "6", "7"]))).toEqual(new Set<string>(["5", "6", "7"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["3"]))).toEqual(new Set<string>(["3", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["1"]))).toEqual(new Set<string>(["1", "2", "3", "4", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["1", "3"]))).toEqual(new Set<string>(["1", "2", "3", "4", "6"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["3", "4"]))).toEqual(new Set<string>(["3", "6", "4"]));
+            expect(nfa.reachesEpsilonClosureStates(new Set<string>(["2", "5"]))).toEqual(new Set<string>(["2", "3", "6", "5", "7"]));
         });
         test('ensure delta has all alphabet', () => {
             const delta = {
@@ -203,8 +211,7 @@ describe('Automata domain', () => {
                 }, "rs": {
                     "0": "s", "1": "p"
                 }, "qrs": {
-                    "0": "rs",
-                    "1": "pqr"
+                    "0": "rs", "1": "pqr"
                 }
             }, "p");
             expect(deterministicFiniteAutomaton).toEqual(expectedDeterministicFiniteAutomaton);

@@ -2,7 +2,8 @@ import {FiniteAutomaton} from "./FiniteAutomaton";
 import {DeterministicFiniteAutomaton} from "./DeterministicFiniteAutomaton";
 import {Delta} from "./Delta";
 import {union} from "../../@shared/SetOperations";
-import {NondeterministicFiniteAutomatonTransformer} from "../../@shared/NondeterministicFiniteAutomatonTransformer";
+import {NondeterministicFiniteAutomatonTransformer} from "./NondeterministicFiniteAutomatonTransformer";
+import {EpsilonClosureStateResearcher} from "./EpsilonClosureStateResearcher";
 
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     constructor(delta: Delta, startState: string = "") {
@@ -37,14 +38,17 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         state = this.ensureStateIsAState(state);
         let accumulator = new Set<string>();
         state.forEach((rState) => {
-            if(this.delta[rState] !== undefined || symbol !== '') {
+            if(this.delta[rState] !== undefined && this.delta[rState][symbol] !== undefined) {
                 accumulator = union(accumulator, this.delta[rState][symbol] as Set<string>);
             }
         });
         return accumulator;
     }
 
-
+    reachesEpsilonClosureStates(state: string | Set<string | number> | number) {
+        state = this.ensureStateIsAState(state);
+        return new EpsilonClosureStateResearcher(this).reaches(state);
+    }
 
     private ensureStateIsAState(state: string | Set<string | number> | number) {
         if (typeof state == "number" || typeof state == "string") {
