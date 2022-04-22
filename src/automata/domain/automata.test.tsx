@@ -65,42 +65,52 @@ describe('Automata domain', () => {
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
+        test.only("it should build start states (>=2) to epsilon states", () => {
+            const nfa = new NondeterministicFiniteAutomaton({
+                "1": {
+                    "": "3", "b": "2", "start": true
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]), "b": "3", "start": true
+                }, "3": {
+                    "a": "1"
+                }
+            }, "1");
+            expect(nfa).toEqual(new NondeterministicFiniteAutomaton({
+                "START_STATE": {
+                    "": new Set<string>(["1", "2"])
+                },
+                "1": {
+                    "": "3", "b": "2"
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]), "b": "3"
+                }, "3": {
+                    "a": "1"
+                }
+            }, "START_STATE"));
+        });
         test("it should convert nfa to dfa with epsilon states", () => {
             const dfa = convertNFAToDFABy({
                 "1": {
-                    "": "3",
-                    "b": "2"
+                    "": "3", "b": "2", "accept": true
                 }, "2": {
-                    "a": new Set<string>(["2", "3"]),
-                    "b": "3"
+                    "a": new Set<string>(["2", "3"]), "b": "3"
                 }, "3": {
                     "a": "1"
                 }
             }, "1");
             expect(dfa).toEqual(new DeterministicFiniteAutomaton({
                 "13": {
-                    "a": "13",
-                    "b": "2"
-                },
-                "2": {
-                    "a": "23",
-                    "b": "3"
-                },
-                "3": {
-                    "a": "13",
-                    "b": "NULL"
-                },
-                "23": {
-                    "a": "123",
-                    "b": "3"
-                },
-                "123": {
-                    "a": "123",
-                    "b": "23"
-                },
-                "NULL": {
-                    "a": "NULL",
-                    "b": "NULL"
+                    "a": "13", "b": "2", "accept": true
+                }, "2": {
+                    "a": "23", "b": "3"
+                }, "3": {
+                    "a": "13", "b": "NULL"
+                }, "23": {
+                    "a": "123", "b": "3"
+                }, "123": {
+                    "a": "123", "b": "23", "accept": true
+                }, "NULL": {
+                    "a": "NULL", "b": "NULL"
                 }
             }, "13"));
         });
@@ -115,8 +125,7 @@ describe('Automata domain', () => {
                 }, "4": {
                     "a": new Set<string>(["5"])
                 }, "5": {
-                    "b": new Set<string>(["6"]),
-                    "": new Set<string>(["7"])
+                    "b": new Set<string>(["6"]), "": new Set<string>(["7"])
                 }, "6": {}, "7": {}, "8": {"a": "6", "b": "7"}
             };
             const nfa = new NondeterministicFiniteAutomaton(delta);

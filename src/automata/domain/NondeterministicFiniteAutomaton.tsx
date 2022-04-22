@@ -7,6 +7,22 @@ import {EpsilonClosureStateResearcher} from "./EpsilonClosureStateResearcher";
 
 export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
     constructor(delta: Delta, startState: string = "") {
+        const states = Object.keys(delta);
+        const newStartStates: string[] = [];
+        states.forEach((state) => {
+            if (delta[state]["start"]) {
+                newStartStates.push(state);
+                delete delta[state]["start"];
+            }
+        });
+        if (newStartStates.length == 1) {
+            startState = newStartStates[0];
+        }
+        if (newStartStates.length > 1) {
+            startState = "START_STATE";
+            delta[startState] = {};
+            delta[startState][""] = new Set<string>(newStartStates);
+        }
         super(delta, startState);
         this.ensureAlphabetIsInDelta();
     }

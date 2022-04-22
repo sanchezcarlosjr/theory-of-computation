@@ -2,10 +2,14 @@ import {Delta} from "./Delta";
 import {clone} from 'lodash';
 
 export abstract class FiniteAutomaton {
-    private readonly _alphabet = new Set<string>();
-    private readonly _states = new Set<string>();
+    private _alphabet = new Set<string>();
+    private _states = new Set<string>();
 
-    constructor(protected _delta: Delta, protected readonly _startState: string = "") {
+    constructor(protected _delta: Delta, protected _startState: string = "") {
+        this.buildFiniteAutomaton();
+    }
+
+    protected buildFiniteAutomaton() {
         const states = Object.keys(this._delta);
         if (!this._startState) {
             this._startState = states[0];
