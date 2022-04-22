@@ -65,6 +65,23 @@ describe('Automata domain', () => {
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
+        test('it should reaches epsilon-closure states', () => {
+            const delta = {
+                "1": {
+                    "": new Set<string>(["2", "4"]),
+                }, "2": {
+                    "": new Set<string>(["3"])
+                }, "3": {
+                    "": new Set<string>(["6"])
+                }, "4": {
+                    "a": new Set<string>(["5"])
+                }, "5": {
+                    "b": new Set<string>(["7"])
+                }, "6": {}, "7": {}
+            };
+            const nfa = new NondeterministicFiniteAutomaton(delta);
+            expect(nfa.reachesEpsilonClosureStates("1")).toEqual(new Set<string>(["1", "2", "3", "4", "5", "6"]));
+        });
         test('ensure delta has all alphabet', () => {
             const delta = {
                 "q0": {
