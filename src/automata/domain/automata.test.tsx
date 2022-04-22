@@ -65,6 +65,45 @@ describe('Automata domain', () => {
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
+        test("it should convert nfa to dfa with epsilon states", () => {
+            const dfa = convertNFAToDFABy({
+                "1": {
+                    "": "3",
+                    "b": "2"
+                }, "2": {
+                    "a": new Set<string>(["2", "3"]),
+                    "b": "3"
+                }, "3": {
+                    "a": "1"
+                }
+            }, "1");
+            expect(dfa).toEqual(new DeterministicFiniteAutomaton({
+                "13": {
+                    "a": "13",
+                    "b": "2"
+                },
+                "2": {
+                    "a": "23",
+                    "b": "3"
+                },
+                "3": {
+                    "a": "13",
+                    "b": "NULL"
+                },
+                "23": {
+                    "a": "123",
+                    "b": "3"
+                },
+                "123": {
+                    "a": "123",
+                    "b": "23"
+                },
+                "NULL": {
+                    "a": "NULL",
+                    "b": "NULL"
+                }
+            }, "13"));
+        });
         test('it should reaches epsilon-closure states', () => {
             const delta = {
                 "1": {
@@ -205,9 +244,9 @@ describe('Automata domain', () => {
                 }, "pqr": {
                     "0": "qrs", "1": "pqr"
                 }, "s": {
-                    "0": "", "1": "p"
-                }, "": {
-                    "0": "", "1": ""
+                    "0": "NULL", "1": "p"
+                }, "NULL": {
+                    "0": "NULL", "1": "NULL"
                 }, "rs": {
                     "0": "s", "1": "p"
                 }, "qrs": {

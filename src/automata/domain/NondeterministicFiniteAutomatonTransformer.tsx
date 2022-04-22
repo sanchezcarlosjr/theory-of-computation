@@ -7,18 +7,25 @@ import {NondeterministicFiniteAutomaton} from "./NondeterministicFiniteAutomaton
 export class NondeterministicFiniteAutomatonTransformer extends Graph {
     private delta: Delta = {};
     private key: string = "";
+    private readonly alphabet = new Set<string>();
+    private readonly startState = this.automaton.reachesEpsilonClosureStates(this.automaton.startState);
 
     constructor(
         protected automaton: NondeterministicFiniteAutomaton
     ) {
         super();
+        this.alphabet = new Set<string>(this.automaton.alphabet);
+        this.alphabet.delete('');
     }
 
     getInitialNode() {
-        return new Set<string>([this.automaton.startState]);
+        return this.startState;
     }
 
     generateKey(newStates: Set<string|number>): string {
+        if(newStates.size == 0) {
+            return "NULL";
+        }
         return [...newStates].sort().join("");
     }
 
@@ -31,11 +38,11 @@ export class NondeterministicFiniteAutomatonTransformer extends Graph {
     toDeterministicFiniteAutomaton(): DeterministicFiniteAutomaton {
         const breadthFirstSearcher = new BreadthFirstSearcher(this);
         breadthFirstSearcher.makeANewGraph();
-        return new DeterministicFiniteAutomaton(this.delta, this.automaton.startState);
+        return new DeterministicFiniteAutomaton(this.delta, Array.from(this.startState).join(""));
     }
 
     getAdjacentEdges(): Array<any> | Set<any> {
-        return this.automaton.alphabet;
+        return this.alphabet;
     }
 
     makeANewNode(currentState: Set<string>, symbol: string) {
