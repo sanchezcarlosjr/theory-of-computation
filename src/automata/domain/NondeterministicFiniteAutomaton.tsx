@@ -34,23 +34,31 @@ export class NondeterministicFiniteAutomaton extends FiniteAutomaton {
         const queue = new Queue<Set<string>>(new Set<string>([this.startState]));
         const startState = this.startState;
         while (!queue.isEmpty()) {
-            const states = queue.dequeue();
-            const key = [...states].join("");
+            const currentState = queue.dequeue();
+            const key = this.generateKeyFrom(currentState);
             delta[key] = {};
-            if (intersection(this.accepting_states, states).size > 0) {
-                delta[key]["accept"] = true;
-            }
+            this.makeNewStateAcceptor(currentState, delta, key);
             this.alphabet.forEach((symbol) => {
-                const rStates = this.deltaTransition(states, symbol) as Set<string>;
-                const newKey = [...rStates].sort().join("");
+                const newStates = this.deltaTransition(currentState, symbol) as Set<string>;
+                const newKey = this.generateKeyFrom(newStates);
                 delta[key][symbol] = newKey;
                 if (!visitedStates.has(newKey)) {
                     visitedStates.add(newKey);
-                    queue.enqueue(rStates as Set<string>);
+                    queue.enqueue(newStates as Set<string>);
                 }
             });
         }
         return new DeterministicFiniteAutomaton(delta, startState);
+    }
+
+    private makeNewStateAcceptor(states: Set<string>, delta: Delta, key: string) {
+        if (intersection(this.accepting_states, states).size > 0) {
+            delta[key]["accept"] = true;
+        }
+    }
+
+    private generateKeyFrom(rStates: Set<string>) {
+        return [...rStates].sort().join("");
     }
 
     // δn(S,a)=∪δm(p,a), p in S
