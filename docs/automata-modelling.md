@@ -20,8 +20,4 @@ class DeterministicFiniteAutomaton {
 NondeterministicFiniteAutomaton --> DeterministicFiniteAutomaton
 FiniteAutomaton <|-- NondeterministicFiniteAutomaton
 FiniteAutomaton <|-- DeterministicFiniteAutomaton
-DeterministicFiniteAutomaton --> FiniteAutomatonMinimization
-class FiniteAutomatonMinimization {
-minimize()
-}
 ```
