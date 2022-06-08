@@ -16,6 +16,18 @@ export class ProductionRule {
     constructor(private rule: ConstructorParams) {
     }
 
+    private _backusFormRightSide: string[] = [];
+
+    get backusFormRightSide(): string[] {
+        return this._backusFormRightSide;
+    }
+
+    private _backusFormLeftSide: string[] = [];
+
+    get backusFormLeftSide(): string[] {
+        return this._backusFormLeftSide;
+    }
+
     private _position: number = 0;
 
     get position(): number {
@@ -44,6 +56,14 @@ export class ProductionRule {
         return this._is_start_rule;
     }
 
+    get applicationString() {
+        return this.rule?.to ?? "";
+    }
+
+    get fromString() {
+        return this.rule?.from ?? "";
+    }
+
     acceptable_next_rule(production_rule: number) {
         return true;
     }
@@ -63,12 +83,29 @@ export class ProductionRule {
         this.terminals = terminals;
         this.nonterminals = nonterminals;
         this._is_start_rule = nonterminals.isStartSymbol(this.rule.from);
-        const symbols = new Set([...Array.from(terminals), ...nonterminals.toArray(), "\\lambda", "\\epsilon"]
-            .map((x) => x.toString()));
+        const symbols = new Set([...Array.from(terminals), ...nonterminals.toArray()].map((x) => x.toString()));
         this.from = breakTokens(this.rule.from, symbols);
         this.to = breakTokens(this.rule.to, symbols);
         this._is_a_terminal_rule = !this.to.some((toSymbol) => this.nonterminals.has(toSymbol));
         this.determineType();
+        this._backusFormRightSide = this.to.map((x) => {
+            if(this.nonterminals.has(x)) {
+                return `<${x}>`;
+            }
+            if(this.terminals.has(x)) {
+                return x;
+            }
+            return "";
+        });
+        this._backusFormLeftSide = this.from.map((x) => {
+            if(this.nonterminals.has(x)) {
+                return `<${x}>`;
+            }
+            if(this.terminals.has(x)) {
+                return x;
+            }
+            return "";
+        });
         return this;
     }
 
@@ -82,6 +119,10 @@ export class ProductionRule {
 
     isReduceBy(str: string) {
         return this.rule.to === str;
+    }
+
+    inverse(derivative_string: string) {
+        return derivative_string.replace(this.rule.to, this.rule.from);
     }
 
     private determineType() {
@@ -107,9 +148,5 @@ export class ProductionRule {
             return;
         }
         this._type = 3;
-    }
-
-    inverse(derivative_string: string) {
-        return derivative_string.replace(this.rule.to, this.rule.from);
     }
 }

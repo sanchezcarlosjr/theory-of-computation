@@ -16,7 +16,6 @@ export class ParseTree {
     private _configurations: ConfigurationOfAShiftReduceParser[] = [];
 
     get configurations(): ConfigurationOfAShiftReduceParser[] {
-        console.log(this._configurations);
         return this._configurations;
     }
 

@@ -10,7 +10,7 @@ export class NonTerminalSymbols {
     private readonly _start_symbol: NonTerminalSymbol | undefined;
 
     constructor(start_symbol: NonTerminalSymbol, ...nonterminal_symbols: NonTerminalSymbol[]) {
-        this._start_symbol = start_symbol;
+        this._start_symbol = start_symbol.toString();
         this.add(start_symbol);
         nonterminal_symbols.forEach((symbol) => {
             this.add(symbol);
@@ -22,7 +22,7 @@ export class NonTerminalSymbols {
     }
 
     isStartSymbol(start_symbol: string) {
-        return this._start_symbol?.toString() === start_symbol;
+        return this._start_symbol === start_symbol;
     }
 
     has<T>(value: T) {
@@ -30,16 +30,12 @@ export class NonTerminalSymbols {
     }
 
     add(value: any) {
-        this.symbols.add(value.toString());
         this.symbols.add(value);
         return this;
     }
 
     toArray(): string[] {
-        const x = Array.from(this.symbols);
-        const y = new Set<string>();
-        x.forEach((element: any) => y.add(element.toString()));
-        return Array.from(y);
+        return Array.from(this.symbols) as string[];
     }
 }
 
@@ -184,6 +180,7 @@ class GrammarTypeAutomaton {
 export class Grammar {
     constructor(private _name: string, private _terminal_symbols: Set<TerminalSymbol>, private _nonterminal_symbols: NonTerminalSymbols, private _production_rules: ProductionRule[], private _start_symbol: NonTerminalSymbol) {
         this.ensureStartSymbolIsNonTerminalSymbolSet();
+        console.log(this);
         this._production_rules.forEach((rule, index) => {
             rule.setSymbols(this.terminal_symbols, this.nonterminal_symbols);
             rule.position = index;
