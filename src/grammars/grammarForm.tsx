@@ -102,7 +102,7 @@ const GrammarDerivationFromUserInput = () => {
                                                             </>
                                                         }
                                                         {
-                                                            row.action.type === 'backtracking' && 'Backtrack because input is not empty.'
+                                                            row.action.type === 'backtracking' && 'Backtrack'
                                                         }
                                                         {
                                                             row.action.type === "accept" && "Accept"
