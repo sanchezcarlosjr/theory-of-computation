@@ -1,27 +1,9 @@
 import {NonTerminalSymbols, TerminalSymbol} from "./Grammar";
+import {breakTokens} from "./BreakTokens";
 
 interface ConstructorParams {
     from: string;
     to: string;
-}
-
-export function findStringFromSet(v: string, set: Set<string>): string[] {
-    const array: string[] = [];
-    let j = 0;
-    while(j<v.length) {
-        let i = j;
-        let acc = "";
-        while(i < v.length) {
-            acc = acc + v[i];
-            if(set.has(acc)) {
-                array.push(acc);
-                j=i;
-            }
-            i++;
-        }
-        j++;
-    }
-    return array;
 }
 
 export class ProductionRule {
@@ -32,6 +14,16 @@ export class ProductionRule {
     private nonterminals = new NonTerminalSymbols("");
 
     constructor(private rule: ConstructorParams) {
+    }
+
+    private _position: number = 0;
+
+    get position(): number {
+        return this._position;
+    }
+
+    set position(value: number) {
+        this._position = value;
     }
 
     private _is_a_terminal_rule = false;
@@ -57,7 +49,7 @@ export class ProductionRule {
     }
 
     derive(derivative_string: String) {
-        if(this.rule.to === "\\lambda" || this.rule.to === "\\epsilon") {
+        if (this.rule.to === "\\lambda" || this.rule.to === "\\epsilon") {
             return derivative_string.replace(this.rule.from, "");
         }
         return derivative_string.replace(this.rule.from, this.rule.to);
@@ -73,8 +65,8 @@ export class ProductionRule {
         this._is_start_rule = nonterminals.isStartSymbol(this.rule.from);
         const symbols = new Set([...Array.from(terminals), ...nonterminals.toArray(), "\\lambda", "\\epsilon"]
             .map((x) => x.toString()));
-        this.from = findStringFromSet(this.rule.from, symbols);
-        this.to = findStringFromSet(this.rule.to, symbols);
+        this.from = breakTokens(this.rule.from, symbols);
+        this.to = breakTokens(this.rule.to, symbols);
         this._is_a_terminal_rule = !this.to.some((toSymbol) => this.nonterminals.has(toSymbol));
         this.determineType();
         return this;
@@ -88,28 +80,36 @@ export class ProductionRule {
         }
     }
 
+    isReduceBy(str: string) {
+        return this.rule.to === str;
+    }
+
     private determineType() {
-        if(this.from.length  > this.to.length) {
+        if (this.from.length > this.to.length) {
             this._type = 0;
             return;
         }
-        if(this.from.length >= 2) {
+        if (this.from.length >= 2) {
             this._type = 1;
             return;
         }
         const all_terminals = this.to.filter((toSymbol) => this.nonterminals.has(toSymbol));
-        if(all_terminals.length >= 2) {
+        if (all_terminals.length >= 2) {
             this._type = 2;
             return;
         }
-        if(this.nonterminals.has(this.to[0]) && this.to.length !== 1) {
+        if (this.nonterminals.has(this.to[0]) && this.to.length !== 1) {
             this._type = 3.1;
             return;
         }
-        if(this.nonterminals.has(this.to[this.to.length-1]) && this.to.length !== 1) {
+        if (this.nonterminals.has(this.to[this.to.length - 1]) && this.to.length !== 1) {
             this._type = 3.2;
             return;
         }
         this._type = 3;
+    }
+
+    inverse(derivative_string: string) {
+        return derivative_string.replace(this.rule.to, this.rule.from);
     }
 }

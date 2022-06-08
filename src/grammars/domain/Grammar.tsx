@@ -1,6 +1,9 @@
 import {ProductionRule} from "./ProductionRule";
 import {GrammarRecord} from "../grammarRecord";
 import {useState} from "react";
+import {Parser} from "./Parser";
+import {BottomUpParser} from "./BottomUpParser";
+import {breakTokens} from "./BreakTokens";
 
 export class NonTerminalSymbols {
     private symbols = new Set();
@@ -101,9 +104,7 @@ export function useTransducerAutomaton(production_rules: ProductionRule[], start
     const reset = () => setState(initialState);
 
     return {
-        state,
-        applyRule,
-        reset
+        state, applyRule, reset
     };
 }
 
@@ -155,90 +156,64 @@ export class TransducerAutomaton {
 
 class GrammarTypeAutomaton {
     actualState = 3;
-    states: {[key: number]: any} = {
+    states: { [key: number]: any } = {
         0: {
-            0: 0,
-            1: 0,
-            2: 0,
-            3: 0,
-            3.1: 0,
-            3.2: 0,
-            "response": "0"
-        },
-        1: {
-            0: 0,
-            1: 1,
-            2: 1,
-            3: 1,
-            3.1: 1,
-            3.2: 1,
-            "response": "1"
-        },
-        2: {
-            0: 0,
-            1: 1,
-            2: 2,
-            3: 2,
-            3.1: 2,
-            3.2: 2,
-            "response": "2"
-        },
-        3.1: {
-            0: 0,
-            1: 1,
-            2: 2,
-            3: 3.1,
-            3.1: 3.1,
-            3.2: 2,
-            "response": "Left-regular grammar"
-        },
-        3.2: {
-            0: 0,
-            1: 1,
-            2: 2,
-            3: 3.2,
-            3.1: 2,
-            3.2: 3.1,
-            "response": "Right-regular grammar"
-        },
-        3: {
-            0: 0,
-            1: 1,
-            2: 2,
-            3: 3,
-            3.1: 3.1,
-            3.2: 3.2,
-            "response": "Regular grammar"
+            0: 0, 1: 0, 2: 0, 3: 0, 3.1: 0, 3.2: 0, "response": 0
+        }, 1: {
+            0: 0, 1: 1, 2: 1, 3: 1, 3.1: 1, 3.2: 1, "response": 1
+        }, 2: {
+            0: 0, 1: 1, 2: 2, 3: 2, 3.1: 2, 3.2: 2, "response": 2
+        }, 3.1: {
+            0: 0, 1: 1, 2: 2, 3: 3.1, 3.1: 3.1, 3.2: 2, "response": 3.1
+        }, 3.2: {
+            0: 0, 1: 1, 2: 2, 3: 3.2, 3.1: 2, 3.2: 3.1, "response": 3.2
+        }, 3: {
+            0: 0, 1: 1, 2: 2, 3: 3, 3.1: 3.1, 3.2: 3.2, "response": 3
         }
     };
-    transit(type_rule: number) {
-        this.actualState = this.states[this.actualState][type_rule];
-    }
+
     get type(): number {
         return this.states[this.actualState]["response"];
+    }
+
+    transit(type_rule: number) {
+        this.actualState = this.states[this.actualState][type_rule];
     }
 }
 
 export class Grammar {
-    private _type = 3;
-
-    constructor(
-        private _name: string,
-        private _terminal_symbols: Set<TerminalSymbol>,
-        private _nonterminal_symbols: NonTerminalSymbols,
-        private _production_rules: ProductionRule[],
-        private _start_symbol: NonTerminalSymbol
-    ) {
+    constructor(private _name: string, private _terminal_symbols: Set<TerminalSymbol>, private _nonterminal_symbols: NonTerminalSymbols, private _production_rules: ProductionRule[], private _start_symbol: NonTerminalSymbol) {
         this.ensureStartSymbolIsNonTerminalSymbolSet();
-        this._production_rules.forEach((rule) =>
-            rule.setSymbols(this.terminal_symbols, this.nonterminal_symbols)
-        );
+        this._production_rules.forEach((rule, index) => {
+            rule.setSymbols(this.terminal_symbols, this.nonterminal_symbols);
+            rule.position = index;
+        });
         this.determineType();
     }
 
+    private _type = 3;
 
     get type(): number {
         return this._type;
+    }
+
+    get nameType(): string {
+        switch (this._type) {
+            case 0:
+                return "Recursively enumerable";
+            case 1:
+                return "Context-sensitive";
+            case 2:
+                return "Free context grammar";
+            case 3.1:
+                return "Left-regular grammar";
+            case 3.2:
+                return "Right-regular grammar";
+            case 3:
+                return "Regular grammar";
+            default:
+                return "Error";
+        }
     }
 
     get name(): string {
@@ -261,7 +236,7 @@ export class Grammar {
         return this._start_symbol;
     }
 
-    static parse(record: GrammarRecord) {
+    static build(record: GrammarRecord) {
         const start_symbol = new NonTerminalSymbol(record.start_symbol);
         const non_terminals_symbols = new NonTerminalSymbols(start_symbol);
         const terminal_symbols = new Set<TerminalSymbol>();
@@ -270,15 +245,25 @@ export class Grammar {
         const production_rules = record
             .production_rules
             .split(",")
-            .map((rule) =>
-                rule.split("\\to")
-                    .reduce((acc: any, actual) => ([...acc, ...actual.split("|")]), [])
-                    .reduce((acc: any, actual: any, index: any, array: any[]) => (
-                        [...acc, new ProductionRule({from: array[0], to: actual.trim()})]), []
-                    )
-                    .splice(1)
-            ).flat();
+            .map((rule) => rule.split("\\to")
+                .reduce((acc: any, actual) => ([...acc, ...actual.split("|")]), [])
+                .reduce((acc: any, actual: any, index: any, array: any[]) => ([...acc, new ProductionRule({
+                    from: array[0],
+                    to: actual.trim()
+                })]), [])
+                .splice(1)).flat();
         return new Grammar(record.name, terminal_symbols, non_terminals_symbols, production_rules, start_symbol);
+    }
+
+    parse(str: string, parser: Parser = new BottomUpParser()) {
+        parser.grammar = this;
+        return parser.parse(str);
+    }
+
+    breakTokens(str: string) {
+        const symbols = new Set([...Array.from(this.terminal_symbols), ...this.nonterminal_symbols.toArray(), "\\lambda", "\\epsilon"]
+            .map((x) => x.toString()));
+        return breakTokens(str, symbols);
     }
 
     buildTransducerAutomaton(): TransducerAutomaton {

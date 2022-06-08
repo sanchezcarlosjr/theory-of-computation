@@ -27,44 +27,8 @@
     yarn start
 ```
 
-## Learn More
-
-
-[Go To Documentation]()
-
-
-### **css**
-
-
-
-[Go To Documentation]()
-
-
-
-
-
-[Go To Documentation]()
-
-
-### **no**
-
-
-
-[Go To Documentation]()
-
-
-### **no**
-
-
-
-[Go To Documentation]()
-
-
-### **no**
-
-
-
-[Go To Documentation]()
+## Modelling
+![Maze](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/sanchezcarlosjr/theory-of-computation/main/docs/wbs.md)
 
 
 
