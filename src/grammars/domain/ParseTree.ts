@@ -1,6 +1,6 @@
 interface ConfigurationOfAShiftReduceParserAction {
-    type: 'shift' | 'reduce' | 'accept',
-    by?: number
+    type: 'shift' | 'reduce' | 'accept' | 'backtracking';
+    by?: number;
 }
 
 export interface ConfigurationOfAShiftReduceParser {

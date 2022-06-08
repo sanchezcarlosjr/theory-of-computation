@@ -31,6 +31,9 @@ export class BottomUpParser extends Parser {
                 this.parseTree.bindAction({type: "accept"});
                 return this.parseTree;
             }
+            this.parseTree.bindInput(nu.join(""));
+            this.parseTree.bindStack(phi.join(""));
+            this.parseTree.bindAction({type: "backtracking"});
         } while(this.stack.length > 0);
         return this.parseTree;
     }

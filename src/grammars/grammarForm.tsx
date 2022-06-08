@@ -93,13 +93,16 @@ const GrammarDerivationFromUserInput = () => {
                                                         {
                                                             row.action.type === "reduce" &&
                                                             <>
-                                                                Reduced by {
+                                                                Reduce by {
                                                                 grammar.production_rules[row.action.by ?? 0].fromString
                                                             } ⇛ {
                                                                 grammar.production_rules[row.action.by ?? 0].applicationString
                                                                 // @ts-ignore
                                                             } (Rule {(row.action?.by ?? 0) + 1})
                                                             </>
+                                                        }
+                                                        {
+                                                            row.action.type === 'backtracking' && 'Backtrack because input is not empty.'
                                                         }
                                                         {
                                                             row.action.type === "accept" && "Accept"
