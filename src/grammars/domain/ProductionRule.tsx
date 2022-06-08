@@ -1,5 +1,6 @@
-import {NonTerminalSymbols, TerminalSymbol} from "./Grammar";
 import {breakTokens} from "./BreakTokens";
+import {NonTerminalSymbols} from "./NonTerminalSymbols";
+import {TerminalSymbol} from "./TerminalSymbol";
 
 interface ConstructorParams {
     from: string;
@@ -26,6 +27,10 @@ export class ProductionRule {
 
     get backusFormLeftSide(): string[] {
         return this._backusFormLeftSide;
+    }
+
+    get normalFormRightSide(): string[] {
+        return this.to;
     }
 
     private _position: number = 0;
@@ -148,5 +153,9 @@ export class ProductionRule {
             return;
         }
         this._type = 3;
+    }
+
+    isDerivativeBy(str: string) {
+        return this.rule.from === str;
     }
 }

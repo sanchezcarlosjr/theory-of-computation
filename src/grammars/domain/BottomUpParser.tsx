@@ -7,6 +7,7 @@ export class BottomUpParser extends Parser {
     private stack: any = [];
 
     parse(str: string) {
+        this.parseTree.grammar = this.grammar;
         const tokens: string[] = this.grammar.breakTokens(str);
         this.stack.push([[], -1, tokens]);
         do {
@@ -14,25 +15,25 @@ export class BottomUpParser extends Parser {
             let found = false;
             do {
                 if (!found && nu.length > 0) {
-                    this.parseTree.bindInput(nu.join(""));
-                    this.parseTree.bindStack(phi.join(""));
+                    this.parseTree.bindInput(nu);
+                    this.parseTree.bindStack(phi);
                     this.parseTree.bindAction({type: "shift"});
                     [phi, nu] = this.shift([...phi], [...nu]);
                     i = -1;
                 }
-                this.parseTree.bindInput(nu.join(""));
+                this.parseTree.bindInput(nu);
                 do {
                     [phi, found] = this.scan([...phi], i,[...nu]);
                 } while (found);
             } while (nu.length > 0 && !this.grammar.nonterminal_symbols.isStartSymbol(phi.join("")));
             if (nu.length === 0 && this.grammar.nonterminal_symbols.isStartSymbol(phi.join(""))) {
-                this.parseTree.bindInput(nu.join(""));
-                this.parseTree.bindStack(phi.join(""));
+                this.parseTree.bindInput(nu);
+                this.parseTree.bindStack(phi);
                 this.parseTree.bindAction({type: "accept"});
                 return this.parseTree;
             }
-            this.parseTree.bindInput(nu.join(""));
-            this.parseTree.bindStack(phi.join(""));
+            this.parseTree.bindInput(nu);
+            this.parseTree.bindStack(phi);
             this.parseTree.bindAction({type: "backtracking"});
         } while(this.stack.length > 0);
         return this.parseTree;
@@ -54,7 +55,7 @@ export class BottomUpParser extends Parser {
             n++;
         }
         if (productionRule !== undefined) {
-            this.parseTree.bindStack(phi.join(""));
+            this.parseTree.bindStack(phi);
             this.parseTree.bindAction({type: "reduce", by: productionRule.position});
             this.stack.push([phi, productionRule.position, nu]);
             const phi2 = [...phi];

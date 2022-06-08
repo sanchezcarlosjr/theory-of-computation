@@ -1,10 +1,10 @@
-import {Grammar, NonTerminalSymbol, NonTerminalSymbols, TerminalSymbol} from "./Grammar";
+import {Grammar} from "./Grammar";
 import {ProductionRule} from "./ProductionRule";
 import {GrammarRecord} from "../grammarRecord";
-import {transformGrammarUpsert} from "../grammarUpsert";
-import {grammarRecordMock1, grammarRecordMock2} from "../grammarForm.test";
 import {breakTokens} from "./BreakTokens";
-import {ParseTree} from "./ParseTree";
+import {NonTerminalSymbols} from "./NonTerminalSymbols";
+import {TerminalSymbol} from "./TerminalSymbol";
+import {NonTerminalSymbol} from "./NonTerminalSymbol";
 
 test('Grammar should ensure nonterminal symbol is not in nonsymbol set.', () => {
     const terminals = [new TerminalSymbol("a")];
@@ -89,18 +89,6 @@ test('Grammar should derive a string with recursive rules from StartSymbol (Free
 
 
 test("Grammar should build GrammarRecordMock1", () => {
-    const record: GrammarRecord = transformGrammarUpsert(grammarRecordMock1);
-    const grammar = Grammar.build(record);
-    expect(grammar.name).toBe(record.name);
-    // eslint-disable-next-line eqeqeq
-    expect(grammar.start_symbol == record.start_symbol).toBeTruthy();
-    expect(grammar.nonterminal_symbols.has("\\Sigma")).toBeTruthy();
-    expect(grammar.nonterminal_symbols.has("S")).toBeTruthy();
-    expect(grammar.nonterminal_symbols.has("B")).toBeTruthy();
-    expect(grammar.terminal_symbols.has("a")).toBeTruthy();
-    expect(grammar.terminal_symbols.has("+")).toBeTruthy();
-    expect(grammar.terminal_symbols.has("-")).toBeTruthy();
-    expect(grammar.terminal_symbols.has(".")).toBeTruthy();
     const rules = [
         new ProductionRule({from: "\\Sigma", to: "S"}),
         new ProductionRule({from: "\\Sigma", to: "B"}),
@@ -108,6 +96,23 @@ test("Grammar should build GrammarRecordMock1", () => {
         new ProductionRule({from: "B", to: "a+-."})
     ];
     rules.forEach((rule) => rule.setSymbols(grammar.terminal_symbols, grammar.nonterminal_symbols));
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["a", "+", "-", "."]),
+        new NonTerminalSymbols("\\Sigma", "S", "B"),
+        rules,
+        "\\Sigma"
+    );
+    expect(grammar.name).toBe("Compiler book");
+    // eslint-disable-next-line eqeqeq
+    expect(grammar.start_symbol == "\\Sigma").toBeTruthy();
+    expect(grammar.nonterminal_symbols.has("\\Sigma")).toBeTruthy();
+    expect(grammar.nonterminal_symbols.has("S")).toBeTruthy();
+    expect(grammar.nonterminal_symbols.has("B")).toBeTruthy();
+    expect(grammar.terminal_symbols.has("a")).toBeTruthy();
+    expect(grammar.terminal_symbols.has("+")).toBeTruthy();
+    expect(grammar.terminal_symbols.has("-")).toBeTruthy();
+    expect(grammar.terminal_symbols.has(".")).toBeTruthy();
     expect(grammar.production_rules[0]).toEqual(rules[0]);
     expect(grammar.production_rules[1]).toEqual(rules[1]);
     expect(grammar.production_rules[2]).toEqual(rules[2]);
@@ -115,8 +120,18 @@ test("Grammar should build GrammarRecordMock1", () => {
 });
 
 test("Grammar should execute steps from parser", () => {
-    const record: GrammarRecord = transformGrammarUpsert(grammarRecordMock1);
-    const grammar = Grammar.build(record);
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["a", "+", "-", "."]),
+        new NonTerminalSymbols("\\Sigma", "S", "B"),
+        [
+            new ProductionRule({from: "\\Sigma", to: "S"}),
+            new ProductionRule({from: "\\Sigma", to: "B"}),
+            new ProductionRule({from: "S", to: "\\lambda"}),
+            new ProductionRule({from: "B", to: "a+-."})
+        ],
+        "\\Sigma"
+    );
     const automaton = grammar.buildTransducerAutomaton();
     expect(automaton.deriveString()).toBe("\\Sigma");
     automaton.applyRule(0);
@@ -130,8 +145,18 @@ test("Grammar should execute steps from parser", () => {
 });
 
 test.skip("Grammar should execute steps from GrammarMock2 parser", () => {
-    const record: GrammarRecord = transformGrammarUpsert(grammarRecordMock2);
-    const grammar = Grammar.build(record);
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["a", "+", "-", "."]),
+        new NonTerminalSymbols("\\Sigma", "S", "B"),
+        [
+            new ProductionRule({from: "\\Sigma", to: "S"}),
+            new ProductionRule({from: "\\Sigma", to: "B"}),
+            new ProductionRule({from: "S", to: "\\lambda"}),
+            new ProductionRule({from: "B", to: "a+-."})
+        ],
+        "\\Sigma"
+    );
     const automaton = grammar.buildTransducerAutomaton();
     expect(automaton.deriveString()).toBe("\\Sigma");
     automaton.applyRule(0);
@@ -164,8 +189,18 @@ test('Production rule ensure its symbols are either nonterminal symbols or termi
 });
 
 test.skip("Production rule make accepted set", () => {
-    const record: GrammarRecord = transformGrammarUpsert(grammarRecordMock2);
-    const grammar = Grammar.build(record);
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["a", "+", "-", "."]),
+        new NonTerminalSymbols("\\Sigma", "S", "B"),
+        [
+            new ProductionRule({from: "\\Sigma", to: "S"}),
+            new ProductionRule({from: "\\Sigma", to: "B"}),
+            new ProductionRule({from: "S", to: "\\lambda"}),
+            new ProductionRule({from: "B", to: "a+-."})
+        ],
+        "\\Sigma"
+    );
     const automaton = grammar.buildTransducerAutomaton();
     expect(automaton.actual_state().acceptable_next_rule(0)).toBeTruthy();
     automaton.applyRule(0);
@@ -208,7 +243,7 @@ test('breakTokens should find all strings', () => {
     expect(array).toEqual(["S", "X", "\\Sigma", "X", "\\lambda", "\\Sigma" ]);
 });
 
-test.only("it should parse", () => {
+test("it should parse", () => {
     const grammar = new Grammar(
         "Compilers book",
         new Set<string>(["x", "(", ")", "+"]),
@@ -224,4 +259,61 @@ test.only("it should parse", () => {
     );
     const result = grammar.parse("(x+x)");
     expect(result.accepts).toEqual(true);
+});
+
+test.only('it should build parse tree', () => {
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["id", "*"]),
+        new NonTerminalSymbols("E", "T", "F"),
+        [
+            new ProductionRule({from: "E", to: "T"}),
+            new ProductionRule({from: "T", to: "T*F"}),
+            new ProductionRule({from: "F", to: "id"}),
+            new ProductionRule({from: "T", to: "F"})
+        ],
+        "E"
+    );
+    const parseTree = grammar.parse("id*id");
+    expect(parseTree.accepts).toBeTruthy();
+    const tree = parseTree.buildParseTree();
+    expect(tree).toEqual([
+        {
+            id: 0,
+            label: "<E>",
+            children: [1]
+        },
+        {
+            id: 1,
+            label: "<T>",
+            children: [2, 3, 4]
+        },
+        {
+            id: 2,
+            label: "<T>",
+            children: [5]
+        },
+        {
+            id: 3,
+            label: "*"
+        },
+        {
+            id: 4,
+            label: "<F>",
+            children: [6]
+        },
+        {
+            id: 5,
+            label: "<F>",
+            children: [7]
+        },
+        {
+            id: 6,
+            label: "id"
+        },
+        {
+            id: 7,
+            label: "id"
+        }
+    ]);
 });

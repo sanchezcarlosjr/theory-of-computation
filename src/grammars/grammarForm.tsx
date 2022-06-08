@@ -1,6 +1,6 @@
 import {FormDataConsumer, SimpleForm, TextInput,} from "react-admin";
 import * as React from "react";
-import {Grammar, NonTerminalSymbols} from "./domain/Grammar";
+import {Grammar} from "./domain/Grammar";
 import {useFormState} from 'react-final-form';
 import Grid from "@material-ui/core/Grid";
 import {ProductionRule} from "./domain/ProductionRule";
@@ -11,6 +11,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import {NonTerminalSymbols} from "./domain/NonTerminalSymbols";
+import {ParseTreeGraphviz} from "./ParseTreeGraphviz";
 
 
 class GrammarCompiler {
@@ -48,8 +50,8 @@ const GrammarDerivationFromUserInput = () => {
             <Grid item xs={12} md={12}>
                 <h2>Backus–Naur form</h2>
                 {
-                    grammar.production_rules.map((rule) => {
-                        return <p>{rule.backusFormLeftSide.join("")} ::= {rule.backusFormRightSide.join("")}</p>
+                    grammar.production_rules.map((rule, index) => {
+                        return <p key={rule.backusFormLeftSide.join("")+index}>{rule.backusFormLeftSide.join("")} ::= {rule.backusFormRightSide.join("")}</p>
                     })
                 }
             </Grid>
@@ -66,6 +68,7 @@ const GrammarDerivationFromUserInput = () => {
                             return parse.accepts && <>
                                 <Grid item xs={12} md={12}>
                                     <h2>Parse tree</h2>
+                                    <ParseTreeGraphviz tree={parse.buildParseTree()}/>
                                 </Grid>
                                 <Grid item xs={12} md={12}>
                                     <h2>Execution</h2>
@@ -79,12 +82,12 @@ const GrammarDerivationFromUserInput = () => {
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
-                                                {parse.configurations.map((row, index) => (<TableRow key={`${index}`}>
+                                                {parse.configurations.map((row, index) => (<TableRow key={`${index}${row.stack}`}>
                                                     <TableCell component="th" scope="row">
-                                                        {row.stack}
+                                                        {row.stack.join("")}
                                                     </TableCell>
                                                     <TableCell component="th" scope="row">
-                                                        {row.input}
+                                                        {row.input.join("")}
                                                     </TableCell>
                                                     <TableCell component="th" scope="row">
                                                         {
