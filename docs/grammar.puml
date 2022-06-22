@@ -1,0 +1,45 @@
+@startuml
+
+class ContextFreeGrammar {
+  terminals: set<Terminal>
+  variables: set<Variable>
+  startVariable: Variable
+  productionRules: ProductionRule[]
+  generateLanguage()
+  parse(str, parser=new BottomUpParser()): ParseTree
+}
+
+class ProductionRule {
+  from: Variable
+  to: VariableOrTerminalStar
+  apply()
+}
+
+class ParseTree {
+   isAccepted()
+}
+
+class ParseComposite extends ParseTree {}
+class Leaf extends ParseTree {}
+
+class Parser {
+}
+
+class ContextFreeGrammarCompiler {
+   kindOfForm: string
+   compile(str)
+}
+
+class BackusNaurForm {
+  grammar: string
+  compile()
+}
+
+ContextFreeGrammarCompiler o-- BackusNaurForm
+BackusNaurForm *-- ContextFreeGrammar
+BackusNaurForm -> ContextFreeGrammar
+ContextFreeGrammar -> Parser
+Parser -> ParseTree
+ContextFreeGrammar o-- ProductionRule: [1,*]
+ParseComposite o-- ParseTree
+@enduml

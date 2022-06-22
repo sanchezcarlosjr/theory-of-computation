@@ -27,6 +27,10 @@
     yarn start
 ```
 
+## Modelling
+![Grammar domain](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/sanchezcarlosjr/theory-of-computation/develop/docs/grammar.puml)
+![WBS](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/sanchezcarlosjr/theory-of-computation/main/docs/wbs.md)
+
 ## Learn More
 
 
