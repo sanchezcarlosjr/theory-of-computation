@@ -1,67 +1,81 @@
 import {Parser} from "./Parser";
 import {ParseTree} from "./ParseTree";
+import {Graph} from "../../@shared/Graph";
+import {DeepFirstSearcher} from "../../@shared/DeepFirstSearcher";
 import {ProductionRule} from "./ProductionRule";
 
-export class BottomUpParser extends Parser {
+type nu = string[];
+type rule = number;
+type phi = string[];
+type Node = [phi, rule, nu];
+
+export class BottomUpParser extends Parser implements Graph {
     private parseTree = new ParseTree();
-    private stack: any = [];
+    private chain: Node[] = [];
+    private tokens: string[] = [];
 
     parse(str: string) {
         this.parseTree.grammar = this.grammar;
-        const tokens: string[] = this.grammar.breakTokens(str);
-        this.stack.push([[], -1, tokens]);
-        do {
-            let [[...phi], i, [...nu]] = this.stack.pop();
-            let found = false;
-            do {
-                if (!found && nu.length > 0) {
-                    this.parseTree.bindInput(nu);
-                    this.parseTree.bindStack(phi);
-                    this.parseTree.bindAction({type: "shift"});
-                    [phi, nu] = this.shift([...phi], [...nu]);
-                    i = -1;
-                }
-                this.parseTree.bindInput(nu);
-                do {
-                    [phi, found] = this.scan([...phi], i,[...nu]);
-                } while (found);
-            } while (nu.length > 0 && !this.grammar.nonterminal_symbols.isStartSymbol(phi.join("")));
-            if (nu.length === 0 && this.grammar.nonterminal_symbols.isStartSymbol(phi.join(""))) {
-                this.parseTree.bindInput(nu);
-                this.parseTree.bindStack(phi);
-                this.parseTree.bindAction({type: "accept"});
-                return this.parseTree;
-            }
-            this.parseTree.bindInput(nu);
-            this.parseTree.bindStack(phi);
-            this.parseTree.bindAction({type: "backtracking"});
-        } while(this.stack.length > 0);
+        this.tokens = this.grammar.breakTokens(str);
+        this.chain.push([[], -1, this.tokens]);
+        // @ts-ignore
+        const dfs = new DeepFirstSearcher(this);
+        dfs.makeANewGraph();
         return this.parseTree;
     }
-
-    private shift(phi: string[], nu: string[]) {
-        phi.push(nu.shift() as string);
-        return [phi, nu];
+    private neighbors = new Map<number, Iterator<number>>();
+    // @ts-ignore
+    exploreNeighbor(current_vertex: number): number|undefined {
+        if (!this.neighbors.has(current_vertex)) {
+            this.scan(current_vertex);
+        }
+        const neighbor = this.neighbors.get(current_vertex)?.next();
+        if (neighbor?.done)
+            return undefined;
+        return neighbor?.value;
     }
 
-    private scan(phi: string[], i: number, nu: string[]): [string[], boolean] {
+    getAdjacentEdges(node?: any): Array<any> | Set<any> {
+        return [];
+    }
+
+    private reduce(member: number) {
+    }
+
+    private scan(member: number) {
+        const [[...phi], i, [...nu]] = this.chain[member];
         let j = i+1;
-        let productionRule: ProductionRule | undefined = undefined;
         let potentialHandle: string = "";
         let n = 0;
-        while (productionRule === undefined && n < phi.length) {
+        while (n < phi.length) {
             potentialHandle = phi.slice(n, phi.length).join("");
-            productionRule = this.grammar.production_rules.slice(j).find((rule) => rule.isReduceBy(potentialHandle));
+            const productionRule = this.grammar.production_rules.slice(j).find((rule) => rule.isReduceBy(potentialHandle));
+            if (productionRule !== undefined)
+                this.chain.push([phi, productionRule.position, nu]);
             n++;
         }
-        if (productionRule !== undefined) {
-            this.parseTree.bindStack(phi);
-            this.parseTree.bindAction({type: "reduce", by: productionRule.position});
-            this.stack.push([phi, productionRule.position, nu]);
-            const phi2 = [...phi];
-            phi2.splice(n-1, phi.length, productionRule.inverse(potentialHandle));
-            return [phi2, true];
-        }
-        return [phi, false];
+        phi.push(nu.shift() as string);
+    }
+
+    getInitialNode(): any {
+        return ;
+    }
+
+    // @ts-ignore
+    isAGoal(current_vertex: Node): boolean {
+        return true;
+    }
+
+    makeANewNode(currentNode: any, edge: any): any {
+    }
+// @ts-ignore
+    reconstruct_path(goal: Node): string[] {
+        return [];
+    }
+// @ts-ignore
+    relax(u: Node, v: Node): void {
+    }
+
+    setUpKey(currentNode: Node): void {
     }
 }

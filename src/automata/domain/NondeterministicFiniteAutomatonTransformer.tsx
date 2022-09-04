@@ -1,8 +1,9 @@
 import {Delta} from "./Delta";
-import {BreadthFirstSearcher, Graph} from "../../@shared/BreadthFirstSearcher";
+import {BreadthFirstSearcher} from "../../@shared/BreadthFirstSearcher";
 import {intersection} from "../../@shared/SetOperations";
 import {DeterministicFiniteAutomaton} from "./DeterministicFiniteAutomaton";
 import {NondeterministicFiniteAutomaton} from "./NondeterministicFiniteAutomaton";
+import {Graph} from "../../@shared/Graph";
 
 export class NondeterministicFiniteAutomatonTransformer extends Graph {
     private delta: Delta = {};

@@ -1,5 +1,6 @@
-import {BreadthFirstSearcher, Graph} from "../../@shared/BreadthFirstSearcher";
+import {BreadthFirstSearcher} from "../../@shared/BreadthFirstSearcher";
 import {NondeterministicFiniteAutomaton} from "./NondeterministicFiniteAutomaton";
+import {Graph} from "../../@shared/Graph";
 
 export class EpsilonClosureStateResearcher extends Graph {
     private states = new Set<string | number>();

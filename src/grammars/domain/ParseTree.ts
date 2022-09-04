@@ -1,5 +1,6 @@
-import {BreadthFirstSearcher, Graph} from "../../@shared/BreadthFirstSearcher";
+import {BreadthFirstSearcher} from "../../@shared/BreadthFirstSearcher";
 import {Grammar} from "./Grammar";
+import {Graph} from "../../@shared/Graph";
 
 interface ConfigurationOfAShiftReduceParserAction {
     type: 'shift' | 'reduce' | 'accept' | 'backtracking';

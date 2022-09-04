@@ -261,7 +261,26 @@ test("it should parse", () => {
     expect(result.accepts).toEqual(true);
 });
 
-test.only('it should build parse tree', () => {
+
+test("it should parse an regular expression", () => {
+    const grammar = new Grammar(
+        "Compilers book",
+        new Set<string>(["*", "∪",  "◦", "(", ")", "a", "b", "ε", "∅", "[", "-", "A", "Z", "]"]),
+        new NonTerminalSymbols("R"),
+        [
+            new ProductionRule({from: "R", to: "R∪R"}),
+            new ProductionRule({from: "R", to: "R*"}),
+            new ProductionRule({from: "R", to: "(R)"}),
+            new ProductionRule({from: "R", to: "a"}),
+            new ProductionRule({from: "R", to: "b"})
+        ],
+        "R"
+    );
+    const result = grammar.parse("(a)*");
+    expect(result.accepts).toEqual(true);
+});
+
+test.skip('it should build parse tree', () => {
     const grammar = new Grammar(
         "Compilers book",
         new Set<string>(["id", "*"]),

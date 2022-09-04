@@ -1,11 +1,5 @@
 import {Queue} from "./Queue";
-
-export abstract class Graph {
-    abstract getAdjacentEdges(node?: any): Array<any>|Set<any>;
-    abstract getInitialNode(): any;
-    abstract setUpKey(currentNode: any): void;
-    abstract makeANewNode(currentNode: any, edge: any): any;
-}
+import {Graph} from "./Graph";
 
 export class BreadthFirstSearcher {
     constructor(private graph: Graph) {

@@ -65,7 +65,7 @@ describe('Automata domain', () => {
         });
     });
     describe('NondeterministicFiniteAutomaton', () => {
-        test.only('it should convert example UABC 2022', () => {
+        test('it should convert example UABC 2022', () => {
             const dfa = convertNFAToDFABy({
                 "A": {
                     "0": ["A", "B"],
@@ -90,7 +90,6 @@ describe('Automata domain', () => {
                     "start": true
                 }
             }, "");
-            console.log(dfa);
         });
         test("it should build start states (>=2) to epsilon states", () => {
             const nfa = new NondeterministicFiniteAutomaton({
