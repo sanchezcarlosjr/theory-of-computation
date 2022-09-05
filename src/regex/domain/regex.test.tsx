@@ -88,7 +88,7 @@ describe('regex', () => {
             new Concatenation()
         ]);
     });
-    it.only('should generate a nfa 2', () => {
+    it('should generate a nfa 2', () => {
         const regex = new RegularExpression("(ab)+");
         const nfa  = regex.compile();
         console.log(nfa);
@@ -98,5 +98,10 @@ describe('regex', () => {
         const nfa  = regex.compile();
         console.log(nfa);
 
-    })
+    });
+    it.only('should generate nfa 3', () => {
+        const regex = new RegularExpression("(a|b)*|(c|d)*");
+        const nfa  = regex.compile();
+        console.log(nfa);
+    });
 });

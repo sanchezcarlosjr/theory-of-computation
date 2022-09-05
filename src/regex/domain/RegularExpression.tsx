@@ -54,21 +54,44 @@ export class KleeneStar extends Operator {
     }
 
     generateMachine(stack: Machine[], state: number): number {
-        const [currentState, newState] = this.toStringState(state);
         const machine = stack.pop();
-        //@ts-ignore
-        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] ?? []), currentState];
+        if (machine === undefined) {
+            return state;
+        }
+        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] as Iterable<any> ?? []), machine.start_state];
+        machine.delta[machine.start_state][""] = [...(machine.delta[machine.start_state][""] as Iterable<any> ?? []), machine.final_state];
         stack.push({
             delta: {
-                // @ts-ignore
-                ...machine.delta, [currentState]: {
-                    // @ts-ignore
-                    "": [machine.start_state, newState]
-                }, [newState]: {}
-            }, start_state: currentState, final_state: newState
+                ...machine.delta
+            },
+            start_state: machine.start_state, final_state: machine.final_state
         });
-        return state + 2;
+        return state;
     }
+}
+
+export class Lazy extends Operator {
+    public get PRECEDENCE() {
+        return 5;
+    }
+
+    generateMachine(stack: Machine[], state: number): number {
+        const [_, newState] = this.toStringState(state);
+        const machine = stack.pop();
+        if (machine === undefined) {
+            return state;
+        }
+        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] as Iterable<any> ?? []), newState];
+        machine.delta[machine.start_state][""] = [...(machine.delta[machine.start_state][""] as Iterable<any> ?? []), newState];
+        stack.push({
+            delta: {
+                ...machine.delta,
+                [newState]: {}
+            }, start_state: machine.start_state, final_state:  newState
+        });
+        return state + 1;
+    }
+
 }
 
 export class Union extends Operator {
@@ -78,19 +101,18 @@ export class Union extends Operator {
 
     generateMachine(stack: Machine[], state: number): number {
         const [currentState, newState] = this.toStringState(state);
-        const machine = stack.pop();
-        // @ts-ignore
-        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] ?? []), newState];
-        const e2 = stack.pop();
-        // @ts-ignore
-        e2.delta[e2.final_state][""] = [...(machine.delta[machine.final_state][""] ?? []), newState];
+        const machine1 = stack.pop();
+        const machine2 = stack.pop();
+        if (machine1 === undefined || machine2 === undefined) {
+            return state;
+        }
+        machine1.delta[machine1.final_state][""] = [...(machine1.delta[machine1.final_state][""] as Iterable<any> ?? []), newState];
+        machine2.delta[machine2.final_state][""] = [...(machine2.delta[machine2.final_state][""] as Iterable<any> ?? []), newState];
         stack.push({
             delta: {
-                // @ts-ignore
-                ...machine.delta, // @ts-ignore
-                ...e2.delta, [currentState]: {
-                    // @ts-ignore
-                    "": [machine.start_state, e2.start_state]
+                ...machine1.delta,
+                ...machine2.delta, [currentState]: {
+                    "": [machine1.start_state, machine2.start_state]
                 }, [newState]: {}
             }, start_state: currentState, final_state: newState
         });
@@ -106,12 +128,14 @@ export class Concatenation extends Operator {
     generateMachine(stack: Machine[], state: number): number {
         const e2 = stack.pop();
         const e1 = stack.pop();
-        // @ts-ignore
-        e1.delta[e1.final_state][""] = [...(e1.delta[e1.final_state][""] ?? []), e2.start_state];
+        if (e2 === undefined || e1 === undefined) {
+            return state;
+        }
+        e1.delta[e1.final_state][""] = [...(e1.delta[e1.final_state][""] as Iterable<any> ?? []), e2.start_state];
         stack.push({
             delta: {
                 ...e1?.delta, ...e2?.delta
-            }, // @ts-ignore
+            },
             start_state: e1.start_state, final_state: e2.final_state
         });
         return state;
@@ -131,7 +155,7 @@ export class LeftParenthesis extends Operator {
 
 export class Plus extends Operator {
     public get PRECEDENCE() {
-        return 4;
+        return 5;
     }
 
     get isExpression(): boolean {
@@ -143,7 +167,7 @@ export class Plus extends Operator {
         if (machine === undefined) {
             return state;
         }
-        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] ?? []), machine.start_state];
+        machine.delta[machine.final_state][""] = [...(machine.delta[machine.final_state][""] as Iterable<any> ?? []), machine.start_state];
         stack.push({
             delta: {
                 ...machine.delta
@@ -195,6 +219,12 @@ export class Atomic extends RegularExpressionSymbol {
     }
 }
 
+class EmptyString extends Atomic {
+    constructor() {
+        super("");
+    }
+}
+
 
 interface Machine {
     delta: Delta;
@@ -204,7 +234,8 @@ interface Machine {
 
 export class RegularExpression {
     private parenthesis = 0;
-    constructor(private stream: string) {
+
+    constructor(private stream: string = "ϵ") {
     }
 
     private _symbols: RegularExpressionSymbol[] = [];
@@ -214,9 +245,6 @@ export class RegularExpression {
     }
 
     compile(): NondeterministicFiniteAutomaton {
-        if (this.stream === undefined) {
-            return new NondeterministicFiniteAutomaton({}, 'q0');
-        }
         this._symbols = this.scan(this.stream);
         if (this.parenthesis !== 0) {
             throw new Error('Error in scanning. A parenthesis is wrong.');
@@ -236,9 +264,13 @@ export class RegularExpression {
                         return [new Plus()];
                     case (character === "|" || character === "∪") && state === 0:
                         return [new Union()];
+                    case character === '?' && state === 0:
+                        return [new Lazy()];
                     case character === ")" && state === 0:
                         this.parenthesis--;
                         return [new RightParenthesis()];
+                    case character === 'ϵ' || character === 'λ' || character === '':
+                        return [new EmptyString()];
                     case character === "(" && state === 0:
                         this.parenthesis++;
                         if (symbols.length > 0 && symbols[symbols.length - 1].isExpression) {
