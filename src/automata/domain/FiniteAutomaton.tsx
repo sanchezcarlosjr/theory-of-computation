@@ -1,6 +1,38 @@
 import {Delta} from "./Delta";
 import {clone} from 'lodash';
 
+
+function serialize(object: Object) {
+    const path = (ob: any): any => {
+        if (ob instanceof Set) {
+            return Array.from(ob).reduce((acc, key) => {
+                return {
+                    ...acc,
+                    [key]: true
+                };
+            }, {});
+        }
+        if (ob instanceof Map) {
+            return Array.from(ob).reduce((acc, [key, value]) => {
+                return {
+                    ...acc,
+                    [key]: path(value)
+                };
+            }, {});
+        }
+        if (typeof ob === 'object') {
+            return Object.keys(ob).reduce((acc, key) => {
+                return {
+                    ...acc,
+                    [key]: path(ob[key])
+                };
+            }, {});
+        }
+        return ob;
+    };
+    return path(object);
+}
+
 export abstract class FiniteAutomaton {
     private _alphabet = new Set<string>();
     private _states = new Set<string>();
@@ -38,6 +70,11 @@ export abstract class FiniteAutomaton {
 
     get delta(): Delta {
         return this._delta;
+    }
+
+
+    stringify() {
+        return JSON.stringify(serialize(this._delta));
     }
 
     private _actualState = this._startState;

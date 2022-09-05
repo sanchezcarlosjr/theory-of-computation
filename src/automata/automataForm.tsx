@@ -49,9 +49,14 @@ const DeterministicFiniteAutomatonInput = () => {
                 }
                 <FiniteAutomatonGraphviz finiteAutomaton={minDeterministicFiniteAutomaton} />
             </section>
+            <section>
+                <h2>JSON DFA</h2>
+                {
+                    minDeterministicFiniteAutomaton.stringify()
+                }
+            </section>
         </>);
     } catch (e: any) {
-        console.log(e);
         return (<p>{e?.message}</p>);
     }
 };

@@ -24,6 +24,19 @@ describe('regex', () => {
             new Atomic('1')
         ]);
     });
+    it('should scan 3', () => {
+        const stream = "\\*abc";
+        const regex = new RegularExpression(stream);
+        expect(regex.scan(stream)).toEqual([
+            new Atomic('*'),
+            new Concatenation(),
+            new Atomic('a'),
+            new Concatenation(),
+            new Atomic('b'),
+            new Concatenation(),
+            new Atomic('c'),
+        ]);
+    });
     it('should scan 2', () => {
         const stream = "a(bb)+1*|xba";
         const regex = new RegularExpression(stream);
@@ -47,7 +60,7 @@ describe('regex', () => {
             new Atomic('a'),
         ]);
     });
-    it.only('should parse', () => {
+    it('should parse', () => {
         const regex = new RegularExpression("a(bb)+a");
         regex.compile();
         expect(regex.symbols).toEqual([
@@ -75,8 +88,13 @@ describe('regex', () => {
             new Concatenation()
         ]);
     });
-    it.only('should generate a nfa', () => {
-        const regex = new RegularExpression("a");
+    it.only('should generate a nfa 2', () => {
+        const regex = new RegularExpression("(ab)+");
+        const nfa  = regex.compile();
+        console.log(nfa);
+    });
+    it('should generate a nfa', () => {
+        const regex = new RegularExpression("a+");
         const nfa  = regex.compile();
         console.log(nfa);
 
