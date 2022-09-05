@@ -1,8 +1,9 @@
-import {SimpleForm, TextInput} from "react-admin";
+import {SimpleForm, TextInput, RadioButtonGroupInput, FormDataConsumer} from "react-admin";
 import * as React from "react";
 import {useFormState} from "react-final-form";
 import {NondeterministicFiniteAutomaton} from "./domain/NondeterministicFiniteAutomaton";
 import {FiniteAutomatonGraphviz} from "./finiteAutomatonGraphviz";
+import {RegularExpression} from "../regex/domain/RegularExpression";
 
 const initialAutomata = `{
   "q0": {
@@ -23,9 +24,13 @@ const initialAutomata = `{
 const DeterministicFiniteAutomatonInput = () => {
     const {values} = useFormState();
     try {
-        const json = JSON.parse(values['nfa']);
-        const nondeterministicFiniteAutomaton = new NondeterministicFiniteAutomaton(json);
-        const deterministicFiniteAutomaton = nondeterministicFiniteAutomaton.toDeterministicFiniteAutomaton();
+        const nondeterministicFiniteAutomaton = values['representation'] === 'regex' ? (() => {
+            return new RegularExpression(values['regex']).compile();
+        })() : (() => {
+            const json = JSON.parse(values['nfa']);
+            return new NondeterministicFiniteAutomaton(json);
+        })();
+       const deterministicFiniteAutomaton = nondeterministicFiniteAutomaton.toDeterministicFiniteAutomaton();
         const equivalentStates  = deterministicFiniteAutomaton.findEquivalentStates();
         const minDeterministicFiniteAutomaton = deterministicFiniteAutomaton.minimize();
         return (<>
@@ -46,6 +51,7 @@ const DeterministicFiniteAutomatonInput = () => {
             </section>
         </>);
     } catch (e: any) {
+        console.log(e);
         return (<p>{e?.message}</p>);
     }
 };
@@ -58,13 +64,26 @@ export const AutomataForm = (props: any) => {
             label="Name"
             fullWidth
         />
-        <TextInput
-            initialValue={initialAutomata}
-            source="nfa"
-            multiline
-            label="NFA"
-            fullWidth
-        />
+        <RadioButtonGroupInput source="representation" defaultValue={"nfa"} choices={[
+            { id: 'regex', name: 'Regex' },
+            { id: 'nfa', name: 'NFA' },
+        ]} />
+        <FormDataConsumer>
+            {({ formData, ...rest }) => (
+                formData && formData.representation === 'regex' ? <TextInput
+                    initialValue={"a"}
+                    source="regex"
+                    label="Regex"
+                    fullWidth
+                    /> : <TextInput
+                    initialValue={initialAutomata}
+                    source="nfa"
+                    multiline
+                    label="NFA"
+                    fullWidth
+                />
+            )}
+        </FormDataConsumer>
         <DeterministicFiniteAutomatonInput/>
     </SimpleForm>);
 }
